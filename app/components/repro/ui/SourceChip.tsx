@@ -129,6 +129,13 @@ export interface ProvenanceMarkProps {
   fresh?: boolean | undefined;
   /** Display name when the human editor is not the viewer. */
   humanName?: string | undefined;
+  /**
+   * Show "You" for the viewer's own edits. Off by default: the absence of an
+   * agent chip already means a person wrote it, and "You" on every field is
+   * noise. Turn on where it carries information (e.g. the viewer overrode an
+   * agent value).
+   */
+  showSelf?: boolean | undefined;
   className?: string | undefined;
 }
 
@@ -139,6 +146,7 @@ export function ProvenanceMark({
   preview,
   fresh,
   humanName,
+  showSelf = false,
   className,
 }: ProvenanceMarkProps) {
   if (!provenance) return null;
@@ -153,5 +161,6 @@ export function ProvenanceMark({
       />
     );
   }
+  if (!humanName && !showSelf) return null;
   return <HumanMark name={humanName} className={className} />;
 }

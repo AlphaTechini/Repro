@@ -79,7 +79,7 @@ export function SeverityBadge({
 }: SeverityBadgeProps) {
   const label = severity ? SEVERITY_LABEL[severity] : "No severity";
 
-  if (variant === "icon") {
+  if (variant === "icon" && severity) {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
@@ -99,25 +99,34 @@ export function SeverityBadge({
     );
   }
 
+  if (!severity) {
+    return (
+      <span
+        data-severity="none"
+        className={cn(
+          "inline-flex min-w-0 items-center text-md text-muted-foreground",
+          className,
+        )}
+      >
+        <span aria-hidden="true" className="w-3.5 text-center">
+          —
+        </span>
+        <span className="sr-only">{label}</span>
+      </span>
+    );
+  }
+
   return (
     <span
-      data-severity={severity ?? "none"}
+      data-severity={severity}
       className={cn(
-        "inline-flex min-w-0 items-center gap-1.5 text-md",
-        severity ? "text-foreground" : "text-muted-foreground",
+        "inline-flex min-w-0 items-center gap-1.5 text-md text-foreground",
         severity === "critical" && "font-medium",
         className,
       )}
     >
       <SeverityGlyph severity={severity} />
-      {severity ? (
-        <span className="truncate">{label}</span>
-      ) : (
-        <>
-          <span aria-hidden="true">—</span>
-          <span className="sr-only">{label}</span>
-        </>
-      )}
+      <span className="truncate">{label}</span>
     </span>
   );
 }

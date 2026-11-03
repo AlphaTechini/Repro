@@ -61,7 +61,7 @@ export function Notice({
     <div
       role={tone === "danger" ? "alert" : "status"}
       className={cn(
-        "flex flex-wrap items-start gap-x-2.5 gap-y-2 rounded-lg border px-3 py-2.5 text-md",
+        "@container flex flex-wrap items-start gap-x-2.5 gap-y-2 rounded-lg border px-3 py-2.5 text-md",
         box,
         className,
       )}
@@ -78,7 +78,7 @@ export function Notice({
         ) : null}
       </div>
       {actions ? (
-        <div className="flex shrink-0 items-center gap-1.5 max-sm:w-full max-sm:ps-6.5">
+        <div className="flex w-full shrink-0 flex-wrap items-center gap-1.5 ps-6.5 @xl:w-auto @xl:ps-0">
           {actions}
         </div>
       ) : null}

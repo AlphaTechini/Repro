@@ -135,14 +135,14 @@ Everything else is `text-foreground` (primary) or `text-muted-foreground`
 
 ### 2.3 Tint recipes
 
-| Purpose               | Classes                                                                                       |
-| --------------------- | --------------------------------------------------------------------------------------------- |
-| Agent chip            | `bg-source-agent/8 text-source-agent-ink hover:bg-source-agent/15`                            |
-| Agent notice          | `border-source-agent/25 bg-source-agent/6`                                                    |
-| Warning notice        | `border-status-needs-info/35 bg-status-needs-info/8`                                          |
-| Danger notice         | `border-level-error/30 bg-level-error/6`                                                      |
-| Missing field outline | `border-dashed border-status-needs-info/55 hover:border-status-needs-info` (`missingOutline`) |
-| Cited transcript line | `border-s-2 border-source-agent/60 ps-2`                                                      |
+| Purpose               | Classes                                                                                                                                                                                                     |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent chip            | `bg-source-agent/8 text-source-agent-ink hover:bg-source-agent/15`                                                                                                                                          |
+| Agent notice          | `border-source-agent/25 bg-source-agent/6`                                                                                                                                                                  |
+| Warning notice        | `border-status-needs-info/35 bg-status-needs-info/8`                                                                                                                                                        |
+| Danger notice         | `border-level-error/30 bg-level-error/6`                                                                                                                                                                    |
+| Missing field outline | `border-dashed border-input hover:border-status-needs-info/70 focus-visible:border-status-needs-info` (`missingOutline`; text inputs and textareas only, never on Select or the severity segmented control) |
+| Cited transcript line | `border-s-2 border-source-agent/60 ps-2`                                                                                                                                                                    |
 
 ### 2.4 Shell tokens (unchanged, use as is)
 
@@ -186,17 +186,17 @@ Rules:
 
 ### 4.1 Spacing (4px grid)
 
-| Context                                       | Value                                                      |
-| --------------------------------------------- | ---------------------------------------------------------- |
-| Page gutter                                   | `px-4` (<640px), `@3xl:px-8` on content containers         |
-| Page top padding below header                 | `pt-6`                                                     |
-| Section to section (form groups, page blocks) | `gap-8`                                                    |
-| Field to field (stacked)                      | `gap-5`                                                    |
-| Property rows (inline fields)                 | `gap-1` between rows (each row `min-h-9`)                  |
-| Label row to control                          | `gap-1.5` (built into `FieldShell`)                        |
-| Table row height                              | `h-11` (44px) single line, `h-13` (52px) title + signature |
-| Table cell padding                            | `px-3`                                                     |
-| Icon to text                                  | `gap-1.5` (14px glyph), `gap-2` (16px icon)                |
+| Context                                       | Value                                                                                                                                                                                      |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Page gutter                                   | `px-4` at every width, content left-aligned (no `mx-auto`), so body text starts on the same x as the header title; the detail back button takes `-ms-2` so its arrow sits on that edge too |
+| Page top padding below header                 | `pt-6`                                                                                                                                                                                     |
+| Section to section (form groups, page blocks) | `gap-8`                                                                                                                                                                                    |
+| Field to field (stacked)                      | `gap-5`                                                                                                                                                                                    |
+| Property rows (inline fields)                 | `gap-1` between rows (each row `min-h-9`)                                                                                                                                                  |
+| Label row to control                          | `gap-1.5` (built into `FieldShell`)                                                                                                                                                        |
+| Table row height                              | `h-11` (44px) single line, `h-13` (52px) title + signature                                                                                                                                 |
+| Table cell padding                            | `px-3`                                                                                                                                                                                     |
+| Icon to text                                  | `gap-1.5` (14px glyph), `gap-2` (16px icon)                                                                                                                                                |
 
 ### 4.2 Radius (theme radii only)
 
@@ -335,6 +335,7 @@ Preview content recipes:
 - frame: `<img className="w-56 rounded-sm" />` from `get-clip-frame` + time
 
 **`HumanMark`** `{ name?: string }`: ink dot + "You" (or the editor's first name).
+**Review change:** `ProvenanceMark` hides the viewer's own edits unless `showSelf` is passed ("You" on every field was noise; no agent chip already means a person wrote it). Pass `humanName` for another person's edit, `showSelf` when the viewer overrode an agent value.
 **`ProvenanceMark`** `{ provenance; onSeek?; preview?; fresh?; humanName? }`: picks one of the two.
 
 **`CompletenessMeter`** `{ percent; missingCount?; size?: "sm" | "md"; barOnly? }`
@@ -699,7 +700,7 @@ Field mark logic per field:
 - Empty and required, and the clip has been read → `missing` (`cn(quietInput, missingOutline)` on the control, so the dashed outline shows at rest).
 - Empty while the clip is still being read and the agent can fill it (title, summary, steps, actual, environment) → render a `Skeleton h-4 w-2/3` (title `h-6 w-1/2`) in place of the placeholder, `aria-busy="true"` on the FieldShell. Human-only fields (expected, frequency) render normally and are not flagged until reading ends.
 - Filled by agent → `ProvenanceMark` with `SourceChip` (`onSeek` seeks the player, `preview` per §6.1).
-- Filled or edited by a human → `HumanMark` (`name` when not the viewer).
+- Filled or edited by a human → nothing for the viewer's own edits; `HumanMark` with `name` for another person; `showSelf` when the viewer replaced an agent value.
 - Required fields come from settings (`requiredFields`); non-required fields never show "Needed".
 
 Saving (100ms rule): text fields commit on blur and on `⌘↵`/`Ctrl↵`, selects

@@ -8,9 +8,14 @@
 export const quietInput =
   "border-transparent bg-transparent shadow-none px-2 -mx-2 hover:border-border focus-visible:border-ring/60 focus-visible:bg-background focus-visible:ring-0 focus-visible:ring-offset-0";
 
-/** A required field that is still empty. Apply after `quietInput`. */
+/**
+ * A required field that is still empty. Apply after `quietInput`.
+ * Neutral dashed slot at rest (eight amber boxes at once read as an alarm);
+ * the amber "Needed" mark in the label row carries the signal, and the
+ * outline warms to amber only on hover/focus.
+ */
 export const missingOutline =
-  "border-dashed border-status-needs-info/55 hover:border-status-needs-info";
+  "border-dashed border-input hover:border-status-needs-info/70 focus-visible:border-status-needs-info";
 
 /** Small mono metadata: timestamps, error signatures, issue numbers. */
 export const monoMeta = "font-mono text-2xs tabular-nums text-muted-foreground";

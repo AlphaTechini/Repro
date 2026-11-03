@@ -135,23 +135,31 @@ export function FieldShell({
     ) : null;
 
   if (layout === "inline") {
+    // Below @lg (form column < 32rem) the marks sit under the label instead
+    // of in a third column, so they never add an empty row under the
+    // control. Empty mark wrappers collapse (`empty:hidden`).
     return (
       <div
         data-field={id}
         data-missing={isMissing ? "true" : undefined}
         className={cn(
-          "relative grid min-h-9 grid-cols-[7rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1 @lg:grid-cols-[7rem_minmax(0,1fr)_auto]",
+          "group/field relative grid grid-cols-[7rem_minmax(0,1fr)] gap-x-3 gap-y-1 @lg:grid-cols-[7rem_minmax(0,1fr)_auto]",
           className,
         )}
       >
-        <label
-          htmlFor={id}
-          className="truncate text-xs font-medium text-muted-foreground"
-        >
-          {label}
-        </label>
-        <div className="min-w-0">{children}</div>
-        <div className="col-start-2 flex min-h-5 items-center justify-start gap-1.5 @lg:col-start-3 @lg:justify-end">
+        <div className="flex min-h-9 min-w-0 flex-col justify-center gap-0.5">
+          <label
+            htmlFor={id}
+            className="truncate text-xs font-medium text-muted-foreground"
+          >
+            {label}
+          </label>
+          <div className="flex min-w-0 items-center gap-1.5 empty:hidden @lg:hidden">
+            {marks}
+          </div>
+        </div>
+        <div className="flex min-h-9 min-w-0 items-center">{children}</div>
+        <div className="hidden min-h-9 items-center justify-end gap-1.5 @lg:flex @lg:empty:hidden">
           {marks}
         </div>
         {message ? (
@@ -166,7 +174,7 @@ export function FieldShell({
     <div
       data-field={id}
       data-missing={isMissing ? "true" : undefined}
-      className={cn("relative flex flex-col gap-1.5", className)}
+      className={cn("group/field relative flex flex-col gap-1.5", className)}
     >
       <div className="flex min-h-5 items-center justify-between gap-3">
         <label
@@ -175,7 +183,9 @@ export function FieldShell({
         >
           {label}
         </label>
-        <div className="flex shrink-0 items-center gap-1.5">{marks}</div>
+        <div className="flex shrink-0 items-center gap-1.5 empty:hidden">
+          {marks}
+        </div>
       </div>
       {children}
       {message}
