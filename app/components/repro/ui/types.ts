@@ -1,31 +1,19 @@
 /**
- * Repro domain vocabulary for presentational components. Mirrors
- * docs/ARCHITECTURE.md §2. Data hooks should import these types rather than
+ * Repro domain vocabulary for presentational components. Types come from
+ * shared/repro/types.ts (the domain contract). Data hooks should import these types rather than
  * redefine them.
  */
 
-export type ReportStatus =
-  "draft" | "needs-info" | "ready" | "filed" | "duplicate";
+export type {
+  Actor,
+  FieldProvenance,
+  FieldSource,
+  ReportStatus,
+  Severity,
+  SourceKind,
+} from "@shared/repro/types";
 
-export type Severity = "low" | "medium" | "high" | "critical";
-
-export type SourceKind =
-  "transcript" | "console" | "network" | "frame" | "reporter";
-
-export type Actor = "agent" | "human";
-
-export interface FieldSource {
-  kind: SourceKind;
-  /** Offset into the recording, in milliseconds. */
-  atMs?: number;
-  /** Diagnostic entry id or quoted text the value came from. */
-  ref?: string;
-}
-
-export interface FieldProvenance {
-  actor: Actor;
-  source?: FieldSource;
-}
+import type { ReportStatus, Severity, SourceKind } from "@shared/repro/types";
 
 export const REPORT_STATUSES: readonly ReportStatus[] = [
   "draft",
