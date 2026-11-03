@@ -79,7 +79,16 @@ Verified in the Clips template source (`server/routes/api/agent-context.json.get
 
 ## 5. GitHub
 
-`file-github-issue` uses the GitHub REST API with `GITHUB_TOKEN` (fine-grained, Issues read/write on one repo), stored via the framework's secrets mechanism (see `.agents/skills/secrets/SKILL.md`), falling back to the env var in local dev. Repo comes from settings, default `GITHUB_REPO`. Verified by `checks/03-github-issue.mjs`.
+**Primary: the user's own GitHub identity via a GitHub App.** Issues are filed as the signed-in person, limited to the repos where the Repro GitHub App is installed.
+
+- The framework's GitHub workspace connection (`@agent-native/core/connections`, provider `github`) runs the OAuth web flow against `https://github.com/login/oauth/authorize` with client credentials from `GITHUB_INTEGRATION_CLIENT_ID` / `GITHUB_INTEGRATION_CLIENT_SECRET` (falls back to `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET`). Callback path: `/_agent-native/connections/oauth/github/callback`.
+- Those credentials come from a **GitHub App** (not an OAuth App). GitHub Apps ignore OAuth scopes: the user token can only do what the app's permissions allow (Issues: read and write; Metadata: read) on repos where the app is installed and the user has access. The framework requests `repo` scope, which an OAuth App would honour as full access; a GitHub App does not.
+- The framework's GitHub token exchange does not appear to handle refresh tokens, so in the GitHub App settings turn off "Expire user authorization tokens" (Optional features). Verify during the build: connect, wait, file again.
+- `file-github-issue` resolves the token through the connection's scoped resolver (see `.agents/skills/secrets/SKILL.md` and the `workspace-connections` doc) or the provider API runtime (`@agent-native/core/provider-api`, provider `github`). Never read the token into the model's context.
+
+**Fallback: `GITHUB_TOKEN`** (fine-grained, Issues read/write on one repo) for local dev and the capability check, via the connection's `GITHUB_TOKEN` credential key. Issues then show as the token owner.
+
+Repo comes from settings, default `GITHUB_REPO`. Verified by `checks/03-github-issue.mjs` (token path) and build step 5 (GitHub App path).
 
 Issue body template:
 
