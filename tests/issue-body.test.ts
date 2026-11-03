@@ -31,3 +31,10 @@ describe("issue body", () => {
     expect(renderIssueTitle({ title: "  a   b " })).toBe("a b");
   });
 });
+
+import { breakingMomentMs as _bm } from "../shared/repro/lib/issue-body";
+import { fixtureReport as _fx } from "./fixtures/report.fixture";
+import { it as _it, expect as _expect } from "vitest";
+_it("breakingMomentMs prefers breaksAtMs", () => {
+  _expect(_bm({ ..._fx, breaksAtMs: 9000 })).toBe(9000);
+});

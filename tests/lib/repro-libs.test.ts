@@ -153,3 +153,25 @@ describe("validateChanges (source rule)", () => {
     expect(validateChanges([{ field: "steps", value: [" 1. open ", "", "- click"] }], "human")).toMatchObject({ ok: true, changes: [{ value: ["open", "click"] }] });
   });
 });
+
+describe("breaksAt", () => {
+  it("parses m:ss, h:mm:ss and seconds", async () => {
+    const { parseBreaksAt } = await import("../../shared/repro/lib/validate-changes");
+    expect(parseBreaksAt("0:07")).toBe(7000);
+    expect(parseBreaksAt("1:02:03")).toBe(3_723_000);
+    expect(parseBreaksAt("7")).toBe(7000);
+    expect(parseBreaksAt(7)).toBe(7000);
+    expect(parseBreaksAt("")).toBeNull();
+    expect(parseBreaksAt(null)).toBeNull();
+    for (const bad of ["abc", -3, "-1", "1:75", "0:7", NaN]) expect(parseBreaksAt(bad)).toBeUndefined();
+  });
+  it("validates via validateChanges with the source rule", () => {
+    expect(validateChanges([{ field: "breaksAt", value: "0:07" }], "agent")).toMatchObject({ ok: false, errorCode: "source_required" });
+    expect(validateChanges([{ field: "breaksAt", value: "nope" }], "human")).toMatchObject({ ok: false, errorCode: "invalid_value", message: "Use m:ss, like 0:07" });
+    expect(validateChanges([{ field: "breaksAt", value: "0:07", source: { kind: "console", atMs: 7000 } }], "agent")).toMatchObject({ ok: true, changes: [{ value: 7000 }] });
+  });
+  it("satisfies the evidence requirement", () => {
+    expect(computeCompleteness({ breaksAtMs: 0 }, ["evidence"]).percent).toBe(100);
+    expect(computeCompleteness({ breaksAtMs: null }, ["evidence"]).percent).toBe(0);
+  });
+});

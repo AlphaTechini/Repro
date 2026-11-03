@@ -22,7 +22,7 @@ function cleanSource(s: SourceInput): FieldSource {
 
 export interface ValidatedChange {
   field: ReportField;
-  value: string | string[] | null;
+  value: string | string[] | number | null;
   provenance: Omit<FieldProvenance, "at">;
 }
 
@@ -33,10 +33,31 @@ export type ValidateResult =
 const SEVERITIES = ["low", "medium", "high", "critical"];
 const FREQUENCIES = ["always", "often", "sometimes", "once"];
 
+const BREAKS_AT_HELP = "Use m:ss, like 0:07";
+
+/** "m:ss", "h:mm:ss", seconds ("7", 7) -> ms. null/"" -> null. Returns undefined when invalid. */
+export function parseBreaksAt(value: unknown): number | null | undefined {
+  if (value === null || value === undefined) return null;
+  if (typeof value === "number") {
+    return Number.isFinite(value) && value >= 0 ? Math.round(value * 1000) : undefined;
+  }
+  if (typeof value !== "string") return undefined;
+  const v = value.trim();
+  if (v === "") return null;
+  if (/^\d+(\.\d+)?$/.test(v)) return Math.round(Number(v) * 1000);
+  const m = /^(?:(\d+):)?(\d{1,2}):(\d{2})(?:\.\d+)?$/.exec(v);
+  if (!m || Number(m[3]) > 59 || (m[1] !== undefined && Number(m[2]) > 59)) return undefined;
+  return (Number(m[1] ?? 0) * 3600 + Number(m[2]) * 60 + Number(m[3])) * 1000;
+}
+
 export function normalizeFieldValue(
   field: ReportField,
   value: unknown,
-): { ok: true; value: string | string[] | null } | { ok: false; message: string } {
+): { ok: true; value: string | string[] | number | null } | { ok: false; message: string } {
+  if (field === "breaksAt") {
+    const ms = parseBreaksAt(value);
+    return ms === undefined ? { ok: false, message: BREAKS_AT_HELP } : { ok: true, value: ms };
+  }
   if (field === "steps") {
     const list = Array.isArray(value)
       ? value

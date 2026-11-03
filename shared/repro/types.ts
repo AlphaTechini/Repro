@@ -59,7 +59,9 @@ export type ReportField =
   | "actual"
   | "environment"
   | "frequency"
-  | "severity";
+  | "severity"
+  /** The moment in the recording where it breaks. Value: "m:ss" or seconds; stored as breaksAtMs. */
+  | "breaksAt";
 
 export const REPORT_FIELDS: readonly ReportField[] = [
   "title",
@@ -70,6 +72,7 @@ export const REPORT_FIELDS: readonly ReportField[] = [
   "environment",
   "frequency",
   "severity",
+  "breaksAt",
 ];
 
 /** Fields that can be required for completeness (PRD R4). */
@@ -178,6 +181,8 @@ export interface Report {
   environment: string | null;
   frequency: Frequency | null;
   severity: Severity | null;
+  /** Where it breaks in the recording (ms). Satisfies the "evidence" requirement. */
+  breaksAtMs: number | null;
   errorSignature: string | null;
   evidence: ClipEvidence | null;
   fieldSources: Partial<Record<ReportField, FieldProvenance>>;

@@ -25,6 +25,7 @@ export const reports = pgTable(
     environment: text("environment"),
     frequency: text("frequency"),
     severity: text("severity"),
+    breaksAtMs: integer("breaks_at_ms"),
     errorSignature: text("error_signature"),
     evidenceJson: text("evidence_json"),
     fieldSourcesJson: text("field_sources_json").notNull().default("{}"),

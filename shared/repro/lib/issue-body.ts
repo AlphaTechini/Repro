@@ -53,8 +53,9 @@ export function firstFailedRequest(report: Pick<Report, "evidence">) {
 
 /** Earliest of: first console error, first failed request, else first agent source time. */
 export function breakingMomentMs(
-  report: Pick<Report, "evidence" | "fieldSources">,
+  report: Pick<Report, "evidence" | "fieldSources"> & { breaksAtMs?: number | null },
 ): number | null {
+  if (typeof report.breaksAtMs === "number") return Math.max(0, report.breaksAtMs);
   const times: number[] = [];
   const c = firstConsoleError(report);
   const n = firstFailedRequest(report);
@@ -83,6 +84,7 @@ const FIELD_LABEL: Record<ReportField, string> = {
   environment: "environment",
   frequency: "frequency",
   severity: "severity",
+  breaksAt: "Breaks at",
 };
 
 export function humanConfirmedFields(

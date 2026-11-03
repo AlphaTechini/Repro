@@ -13,6 +13,7 @@ Every field you write needs evidence. Use the actions below; never invent values
 
 1. **Read the clip.** Call `read-clip` with the report `id`. It returns transcript segments, console issues, failed requests, frame timestamps and `transcriptStatus`. If the report has frames to check, call `get-clip-frame` with `id` and an `atMs` from the frame list.
 2. **Fill what the evidence supports.** Call `update-report-fields` with `{ id, changes: [{ field, value, source: { kind, atMs?, ref? } }] }`. Fields: `title`, `summary`, `steps`, `expected`, `actual`, `environment`, `frequency`, `severity`. Use `source.kind` `transcript` (with `atMs` from the segment), `console` or `network` (with `ref` = the diagnostic entry id or quoted text), or `frame` (with `atMs`).
+2b. **Set the breaking moment.** When the evidence shows when it fails, call `update-report-fields` with `field: "breaksAt"`, `value: "m:ss"` (e.g. `"0:07"`) and a `console`/`network`/`transcript` source with that entry's `atMs`. `read-clip` suggests the moment but never sets it.
 3. **Check completeness.** Call `check-report-completeness` with `{ id }`. It returns `{ percent, missing }`.
 4. **Ask only for what is missing.** If `missing` is not empty, send one chat message with at most 3 numbered questions, then call `record-followups` with `{ id, questions }`. Ask only about `missing` fields.
 5. **Take the answers.** When the reporter answers in chat, call `update-report-fields` with `source: { kind: "reporter" }`. Then run `check-report-completeness` again.

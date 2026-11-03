@@ -14,6 +14,7 @@ export interface CompletenessInput {
   environment?: string | null;
   frequency?: string | null;
   severity?: string | null;
+  breaksAtMs?: number | null;
   evidence?: ClipEvidence | null;
   fieldSources?: Partial<Record<ReportField, FieldProvenance>> | null;
 }
@@ -22,6 +23,7 @@ const filled = (v: string | null | undefined) =>
   typeof v === "string" && v.trim().length > 0;
 
 function hasEvidenceTimestamp(r: CompletenessInput): boolean {
+  if (typeof r.breaksAtMs === "number") return true;
   const sources = Object.values(r.fieldSources ?? {});
   if (sources.some((s) => s?.source && typeof s.source.atMs === "number")) return true;
   const ev = r.evidence;

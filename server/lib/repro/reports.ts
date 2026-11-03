@@ -52,6 +52,7 @@ export function rowToReport(r: Row): Report {
     environment: r.environment,
     frequency: r.frequency as Frequency | null,
     severity: r.severity as Severity | null,
+    breaksAtMs: r.breaksAtMs,
     errorSignature: r.errorSignature,
     evidence: decodeEvidence(r.evidenceJson),
     fieldSources: decodeFieldSources(r.fieldSourcesJson),
@@ -133,6 +134,7 @@ function patchToSet(patch: ReportPatch): Partial<typeof reports.$inferInsert> {
   if (p.environment !== undefined) set.environment = p.environment;
   if (p.frequency !== undefined) set.frequency = p.frequency;
   if (p.severity !== undefined) set.severity = p.severity;
+  if (p.breaksAtMs !== undefined) set.breaksAtMs = p.breaksAtMs;
   if (p.errorSignature !== undefined) set.errorSignature = p.errorSignature;
   if (p.evidence !== undefined) set.evidenceJson = p.evidence === null ? null : encodeJson(p.evidence);
   if (p.fieldSources !== undefined) set.fieldSourcesJson = encodeJson(p.fieldSources);

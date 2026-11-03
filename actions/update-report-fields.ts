@@ -20,18 +20,18 @@ const sourceSchema = z.object({
 
 export default defineAction({
   description:
-    "Set report fields (title, summary, steps, expected, actual, environment, frequency, severity). As the agent you MUST give each change a source {kind, atMs?, ref?} citing the transcript, console, network, frame, or the reporter's own words; changes without a source are rejected. Never guess expected behaviour or frequency: ask the reporter. Re-runs the completeness check and returns percent and missing fields.",
+    "Set report fields (title, summary, steps, expected, actual, environment, frequency, severity, breaksAt). As the agent you MUST give each change a source {kind, atMs?, ref?} citing the transcript, console, network, frame, or the reporter's own words; changes without a source are rejected. Never guess expected behaviour or frequency: ask the reporter. Re-runs the completeness check and returns percent and missing fields.",
   schema: z.object({
     id: z.string().describe("Report id"),
     changes: z
       .array(
         z.object({
           field: z
-            .enum(["title", "summary", "steps", "expected", "actual", "environment", "frequency", "severity"])
+            .enum(["title", "summary", "steps", "expected", "actual", "environment", "frequency", "severity", "breaksAt"])
             .describe("Field to set."),
           value: z
-            .union([z.string(), z.array(z.string()), z.null()])
-            .describe("New value. steps is an array of strings; severity: low|medium|high|critical; frequency: always|often|sometimes|once. Empty string clears."),
+            .union([z.string(), z.number(), z.array(z.string()), z.null()])
+            .describe("New value. steps is an array of strings; severity: low|medium|high|critical; frequency: always|often|sometimes|once. Empty string clears. breaksAt is the moment in the clip where it breaks: \"m:ss\" like \"0:07\" (or seconds); cite a console/network/transcript source with atMs."),
           source: sourceSchema.optional().describe("Required when you are the agent."),
         }),
       )
@@ -58,9 +58,10 @@ export default defineAction({
     const fieldSources = { ...report.fieldSources };
     const changed: ReportField[] = [];
     for (const c of checked.changes) {
-      const current = report[c.field];
+      const key = c.field === "breaksAt" ? "breaksAtMs" : c.field;
+      const current = report[key];
       if (JSON.stringify(current ?? null) === JSON.stringify(c.value)) continue;
-      patch[c.field] = c.value;
+      patch[key] = c.value;
       fieldSources[c.field] = { ...c.provenance, at: now } as FieldProvenance;
       changed.push(c.field);
     }

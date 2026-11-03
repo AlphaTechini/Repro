@@ -9,6 +9,7 @@ export const fixtureReport: Report = {
   recordingId: "abc123",
   clipOrigin: "https://clips.example.test",
   agentThreadId: null,
+  breaksAtMs: null,
   status: "ready",
   title: "Checkout spins forever after clicking Pay",
   summary: "Clicking Pay leaves the spinner running.",

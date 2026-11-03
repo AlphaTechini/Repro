@@ -78,6 +78,14 @@ export default defineAction({
     const notes: string[] = [];
     if (!evidence.hasDiagnostics) notes.push("No browser diagnostics: the clip was not recorded with the Clips extension, so there are no console or network entries.");
     if (evidence.transcriptStatus !== "ready") notes.push(`Transcript is ${evidence.transcriptStatus}; rely on frames and diagnostics and tell the reporter.`);
+    if (report.breaksAtMs === null) {
+      const c = errors[0];
+      const n = evidence.failedRequests[0];
+      const pick = c && c.atMs !== null ? { kind: "console", atMs: c.atMs } : n && n.atMs !== null ? { kind: "network", atMs: n.atMs } : null;
+      if (pick) {
+        notes.push(`Suggested breaking moment: ${t(Math.max(0, pick.atMs))}. Set it with update-report-fields field "breaksAt", value "${t(Math.max(0, pick.atMs))}", source {kind:"${pick.kind}", atMs:${pick.atMs}}.`);
+      }
+    }
     return {
       summary,
       evidence: { ...evidence, transcript: evidence.transcript.slice(0, 60) },

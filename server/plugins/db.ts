@@ -69,6 +69,11 @@ export default runMigrations(
       name: "repro-report-events-idx",
       sql: `CREATE INDEX IF NOT EXISTS repro_report_events_report_idx ON repro_report_events (org_id, report_id, at)`,
     },
+    {
+      version: 6,
+      name: "repro-reports-breaks-at-ms",
+      sql: `ALTER TABLE repro_reports ADD COLUMN IF NOT EXISTS breaks_at_ms INTEGER`,
+    },
   ],
   { table: "repro_migrations" },
 );
