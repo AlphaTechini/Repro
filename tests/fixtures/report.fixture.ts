@@ -1,0 +1,51 @@
+// FIXTURE for unit tests only. Not real data; never imported by app code.
+import type { Report } from "../../shared/repro/types";
+
+export const fixtureReport: Report = {
+  id: "fixture-1",
+  orgId: "fixture-org",
+  ownerEmail: "fixture@example.com",
+  clipUrl: "https://clips.example.test/share/abc123?agent_access=SECRET",
+  recordingId: "abc123",
+  clipOrigin: "https://clips.example.test",
+  agentThreadId: null,
+  status: "ready",
+  title: "Checkout spins forever after clicking Pay",
+  summary: "Clicking Pay leaves the spinner running.",
+  steps: ["Open the cart", "Click Pay"],
+  expected: "Order confirmation appears.",
+  actual: "Spinner never stops.",
+  environment: "Chrome 130 on macOS",
+  frequency: "always",
+  severity: "high",
+  errorSignature: "POST /api/pay 500",
+  evidence: {
+    transcriptStatus: "none",
+    transcript: [],
+    consoleIssues: [
+      { id: "c1", level: "error", message: "TypeError: x is undefined", atMs: 12500 },
+    ],
+    failedRequests: [
+      { id: "n1", method: "POST", url: "https://a.test/api/pay", path: "/api/pay", status: 500, atMs: 11800 },
+    ],
+    frames: [],
+    hasDiagnostics: true,
+  },
+  fieldSources: {
+    summary: { actor: "agent", source: { kind: "transcript", atMs: 3000 }, at: "2026-01-01T00:00:00Z" },
+    severity: { actor: "agent", source: { kind: "reporter" }, at: "2026-01-01T00:00:00Z" },
+    frequency: { actor: "human", at: "2026-01-01T00:00:00Z" },
+  },
+  missingFields: [],
+  completeness: 100,
+  followupCount: 0,
+  followupQuestions: [],
+  duplicateOfId: null,
+  githubIssueNumber: null,
+  githubIssueUrl: null,
+  createdAt: "2026-01-01T00:00:00Z",
+  clipReadAt: null,
+  readyAt: null,
+  filedAt: null,
+  updatedAt: "2026-01-01T00:00:00Z",
+};

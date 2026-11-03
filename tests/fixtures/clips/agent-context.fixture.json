@@ -1,0 +1,26 @@
+{
+  "_comment": "FIXTURE: shaped like GET /api/agent-context.json, not a real clip",
+  "type": "agent-native.clip.context",
+  "version": 2,
+  "clip": { "id": "fixture1", "title": "Save does nothing", "durationMs": 20000, "status": "ready" },
+  "transcript": {
+    "status": "ready",
+    "segments": [
+      { "startMs": 3000, "endMs": 6000, "timestamp": "0:03", "range": "0:03-0:06", "text": "I click save and nothing happens" },
+      { "startMs": 9000, "endMs": 11000, "timestamp": "0:09", "range": "0:09-0:11", "text": "Now I open the settings page" }
+    ]
+  },
+  "bugReport": { "sourceUrl": "https://app.example.test/settings", "metadata": { "userAgent": "FixtureBrowser/1.0" } },
+  "browserDiagnostics": {
+    "summary": { "consoleCount": 2, "consoleErrorCount": 1, "consoleWarnCount": 1, "networkCount": 3, "networkFailureCount": 1, "capturedAt": null },
+    "timeline": [{ "timestampMs": 0, "kind": "navigation", "target": null, "url": "https://app.example.test/settings" }],
+    "consoleIssues": [
+      { "timestampMs": -500, "level": "warn", "message": "Deprecated API used" },
+      { "timestampMs": 4200, "level": "error", "message": "TypeError: Cannot read properties of undefined (reading 'id') at 0x1a2b3c" }
+    ],
+    "failedNetworkRequests": [
+      { "timestampMs": 4100, "type": "fetch", "method": "post", "url": "https://app.example.test/api/users/12345/settings?x=1", "status": 500, "error": null, "durationMs": 120 }
+    ],
+    "note": ""
+  }
+}

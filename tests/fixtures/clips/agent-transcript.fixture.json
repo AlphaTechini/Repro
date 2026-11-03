@@ -1,0 +1,9 @@
+{
+  "_comment": "FIXTURE: shaped like GET /api/agent-transcript.json",
+  "type": "agent-native.clip.transcript",
+  "recording": { "id": "fixture1" },
+  "transcript": {
+    "status": "ready",
+    "segments": [{ "startMs": 3000, "endMs": 6000, "timestamp": "0:03", "range": "0:03-0:06", "text": "I click save and nothing happens" }]
+  }
+}

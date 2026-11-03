@@ -36,7 +36,7 @@ Before building common workspace or agent UI, read `agent-native-toolkit`; for s
 
 Repro turns a Clips recording into a fix-ready GitHub issue with the least human effort.
 
-Views: `reports` (`/reports`, inbox), `report` (`/reports/<id>`, form and agent sidebar), `metrics` (`/metrics`), settings (`/settings/github`).
+Views: `reports` (`/reports`, inbox), `report` (`/reports/<id>`, form and agent sidebar), `metrics` (`/metrics`), settings (`/settings/app/github`).
 
 | Action | Purpose |
 |---|---|
