@@ -58,8 +58,9 @@ These numbers are shown in the app (Metrics) and exported to `evidence/`.
 | R4 | Completeness check | Deterministic (no model): required fields = title, steps (2 or more), expected, actual, frequency, severity, environment, evidence timestamp. Returns missing list and percent. |
 | R5 | Follow-up questions | Agent asks only for missing fields, max 3 questions, one message. Answers update the report. |
 | R6 | Shared editing | Reporter edits in the form and agent edits via actions update the same row; UI reflects agent edits live. Each change is logged as `agent` or `human`. |
-| R7 | File GitHub issue | Creates the issue in the configured repo with a structured body (Summary, Steps, Expected, Actual, Evidence with Clip timestamp link, Console, Network, Environment, Frequency, Severity) and labels `repro` and `severity:<level>`. Stores number and URL. Never files twice for one report. |
+| R7 | File GitHub issue | Filed by the Repro GitHub App bot (not a personal account) in the repo the team picked in Settings. Creates the issue with a structured body (Summary, Steps, Expected, Actual, Evidence with Clip timestamp link, Console, Network, Environment, Frequency, Severity) and labels `repro` and `severity:<level>`. Stores number and URL. Never files twice for one report. |
 | R8 | Auto-file setting | On by default. Off means status `ready` and a maintainer clicks File. |
+| R8b | Connect GitHub in the app | Settings has Connect GitHub (installs the Repro GitHub App on chosen repos) and a repo picker. No repo names or tokens in `.env`. |
 | R9 | Inbox | List of reports with status (`draft`, `needs-info`, `ready`, `filed`, `duplicate`), severity, completeness, created by, issue link. |
 | R10 | Metrics | Per report and totals for the four metrics in §3. Export to `evidence/metrics.json` via an action. |
 
@@ -69,7 +70,7 @@ These numbers are shown in the app (Metrics) and exported to `evidence/`.
 |---|---|
 | S1 | Duplicate detection against open reports and open `repro` GitHub issues (title + error signature). |
 | S2 | "Add to existing report" merges evidence into the original and comments on its GitHub issue. |
-| S3 | Settings page: GitHub repo, auto-file toggle, required fields. |
+| S3 | Editable required-fields list in Settings. |
 
 ### Won't have in v1
 
@@ -102,7 +103,7 @@ No mocked Clip data, hardcoded transcripts or fake issues anywhere in the app. T
 1. Show a real app with a real bug. Record it with the Clips extension (10 seconds, narrate "Save does nothing").
 2. Paste the link in Repro. The draft fills itself: title, steps, the console TypeError, the 500 response, each with a timestamp chip.
 3. The agent asks two questions: what did you expect, does it happen every time. Answer one in chat, type the other into the form.
-4. Completeness hits 100%, the issue is filed. Open it on GitHub: structured, linked to the Clip at the failing second.
+4. Completeness hits 100%, the Repro bot files the issue. Open it on GitHub: structured, linked to the Clip at the failing second.
 5. Show Metrics: time to fix-ready, questions asked, agent vs human fields across the 3 real bugs.
 
 ## 9. Risks

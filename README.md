@@ -13,15 +13,13 @@ Built with [Agent-Native](https://agent-native.com) for the Builder.io Agent-Nat
 - Build plan: [docs/BUILD-PLAN.md](docs/BUILD-PLAN.md)
 - Claims and proof: [docs/CLAIMS.md](docs/CLAIMS.md)
 
-## Capability checks
+## Setup and capability checks
 
-Before building, three small scripts confirm the services Repro depends on work as documented:
+See [docs/SETUP.md](docs/SETUP.md): one `.env` with a model key and the Repro GitHub App values, then two checks:
 
 ```bash
-cp .env.example .env   # fill in the keys you need
-node --env-file=.env checks/01-llm-tool-call.mjs        # the model calls tools, and what it costs
-node --env-file=.env checks/02-clips-agent-context.mjs  # a Clip's transcript, frames and browser diagnostics are readable
-node --env-file=.env checks/03-github-issue.mjs         # the token can open and close an issue
+node --env-file=.env checks/01-llm-tool-call.mjs                 # the model calls tools, and what it costs
+node checks/02-clips-agent-context.mjs <clips-share-link>        # a Clip's transcript, frames and browser diagnostics are readable
 ```
 
 Results go in [evidence/capability-checks.md](evidence/capability-checks.md).

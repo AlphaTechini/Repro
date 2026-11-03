@@ -7,20 +7,19 @@
 //   /api/agent-transcript.json timestamped transcript segments
 //   /api/agent-frame.jpg       one frame at a timestamp
 //
-// Run:  node --env-file=.env checks/02-clips-agent-context.mjs
+// Run:  node checks/02-clips-agent-context.mjs <clips-share-link>
 //
-// Env:
-//   CLIPS_SHARE_URL  a public Clips share link (https://clips.agent-native.com/share/<id>)
-//                    or a "Share with agents" link for a private clip (has ?agent_access=...)
+// The link is a public Clips share link (https://clips.agent-native.com/share/<id>)
+// or an agent link for a private clip (has ?agent_access=...).
 //
 // For a meaningful result, record the clip with the Clips Chrome extension on a page
 // that throws a console error or has a failing request, so diagnostics exist.
 
 import { mkdir, writeFile } from "node:fs/promises";
 
-const raw = (process.env.CLIPS_SHARE_URL || "").trim();
+const raw = (process.argv[2] || "").trim();
 if (!raw) {
-  console.error("FAIL: set CLIPS_SHARE_URL to a public or agent-share Clips link.");
+  console.error("FAIL: pass a Clips share link: node checks/02-clips-agent-context.mjs <link>");
   process.exit(1);
 }
 

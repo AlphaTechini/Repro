@@ -42,7 +42,7 @@ Every capability is a `defineAction()` in `actions/`. The React UI calls it with
 
 `report_events`: `id, reportId, actor ("agent"|"human"|"system"), kind ("field_set"|"followup_asked"|"clip_read"|"filed"|"duplicate_marked"), field, at`. Source of the metrics.
 
-`settings` (per org): `githubRepo`, `autoFile` (default true), `requiredFields` (default list in PRD R4).
+`settings` (per org): `githubInstallationId`, `githubAccount`, `githubRepo` (owner/name, picked in the app), `autoFile` (default true), `requiredFields` (default list in PRD R4). Nothing per-team lives in `.env`.
 
 ## 3. Actions
 
@@ -60,7 +60,8 @@ Every capability is a `defineAction()` in `actions/`. The React UI calls it with
 | `list-reports`, `get-report` | inbox and detail | UI, agent |
 | `get-metrics` | the four PRD §3 metrics per report and totals | UI, agent |
 | `export-metrics` | write `evidence/metrics.json` (CLI: `pnpm action export-metrics`) | CLI |
-| `get-settings`, `update-settings` | repo, autoFile, requiredFields | UI |
+| `get-settings`, `update-settings` | installation, repo, autoFile, requiredFields | UI |
+| `list-github-repos` | repos the org's Repro installation can access, for the picker | UI, agent |
 
 Write actions the agent may call without approval: all except `update-settings` (set `needsApproval` there). `file-github-issue` must not require approval when `autoFile` is on.
 
@@ -77,18 +78,21 @@ Clips serves agent-readable endpoints for any clip the caller can see (public sh
 
 Verified in the Clips template source (`server/routes/api/agent-context.json.get.ts`). Field names must be confirmed against a real clip with `checks/02-clips-agent-context.mjs` before coding `read-clip`; adjust parsing to what it prints. Diagnostics exist only if the clip was recorded with the Clips Chrome extension. Transcripts use Builder.io credits on hosted Clips and may be pending or unavailable; handle `transcriptStatus` honestly.
 
-## 5. GitHub
+## 5. GitHub: the Repro GitHub App (bot identity)
 
-**Primary: the user's own GitHub identity via a GitHub App.** Issues are filed as the signed-in person, limited to the repos where the Repro GitHub App is installed.
+Issues are filed by the **Repro GitHub App as its own bot** (`<app-slug>[bot]`), only in repositories where a team installed the app. No personal tokens, no repo names in `.env`.
 
-- The framework's GitHub workspace connection (`@agent-native/core/connections`, provider `github`) runs the OAuth web flow against `https://github.com/login/oauth/authorize` with client credentials from `GITHUB_INTEGRATION_CLIENT_ID` / `GITHUB_INTEGRATION_CLIENT_SECRET` (falls back to `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET`). Callback path: `/_agent-native/connections/oauth/github/callback`.
-- Those credentials come from a **GitHub App** (not an OAuth App). GitHub Apps ignore OAuth scopes: the user token can only do what the app's permissions allow (Issues: read and write; Metadata: read) on repos where the app is installed and the user has access. The framework requests `repo` scope, which an OAuth App would honour as full access; a GitHub App does not.
-- The framework's GitHub token exchange does not appear to handle refresh tokens, so in the GitHub App settings turn off "Expire user authorization tokens" (Optional features). Verify during the build: connect, wait, file again.
-- `file-github-issue` resolves the token through the connection's scoped resolver (see `.agents/skills/secrets/SKILL.md` and the `workspace-connections` doc) or the provider API runtime (`@agent-native/core/provider-api`, provider `github`). Never read the token into the model's context.
+Deployment-level config (`.env`, set once by whoever deploys Repro): `GITHUB_APP_ID`, `GITHUB_APP_SLUG`, `GITHUB_APP_PRIVATE_KEY`. Store them through the framework's secrets mechanism in production (`.agents/skills/secrets/SKILL.md`); never expose them to the browser or the model.
 
-**Fallback: `GITHUB_TOKEN`** (fine-grained, Issues read/write on one repo) for local dev and the capability check, via the connection's `GITHUB_TOKEN` credential key. Issues then show as the token owner.
+Per-team config (in the app, Settings, stored in the `settings` table):
 
-Repo comes from settings, default `GITHUB_REPO`. Verified by `checks/03-github-issue.mjs` (token path) and build step 5 (GitHub App path).
+1. **Connect GitHub** button opens `https://github.com/apps/{GITHUB_APP_SLUG}/installations/new`. The person picks their account and the repos to allow.
+2. GitHub redirects to the app's **Setup URL** (`{APP_URL}/github/setup`, a server route) with `installation_id` and `setup_action`. The route verifies the installation exists with an app JWT (`GET /app/installations/{installation_id}`), stores `githubInstallationId` and the account login on the org's settings, and redirects to Settings. (Known limitation for v1: the redirect is not cryptographically tied to the signed-in user. Document it under Security; the fix is GitHub's "Request user authorization (OAuth) during installation" plus `GET /user/installations`.)
+3. **Repo picker:** `list-github-repos` gets an installation token and calls `GET /installation/repositories`; the user picks one, saved as `githubRepo`.
+
+Filing: `file-github-issue` gets an installation access token (`POST /app/installations/{id}/access_tokens`, JWT signed RS256 with the private key, valid 1 hour; cache until near expiry) and calls `POST /repos/{owner}/{repo}/issues`. Use `@octokit/auth-app` (or `octokit`'s `App`) for the JWT and token exchange rather than hand-rolling it. `GITHUB_APP_PRIVATE_KEY` is stored on one line with `\n`; convert to real newlines before use.
+
+GitHub App permissions: Repository → Issues: Read and write; Metadata: Read (automatic). Nothing else. The app cannot touch code or pull requests because it doesn't have those permissions.
 
 Issue body template:
 
@@ -134,7 +138,7 @@ Put the instructions in `.agents/skills/repro/SKILL.md` and reference it from AG
 - `/reports` Inbox: table (status, title, severity, completeness bar, reporter, issue link, time to fix-ready). New report button.
 - `/reports/:id` Detail: left = report form (every field editable; agent-filled fields show a chip "from 0:07" that seeks the embedded Clip or shows the frame); top = completeness bar and status; right = agent sidebar (framework `AgentSidebar`, same thread per report). Embed the Clip player with `https://clips.agent-native.com/embed/<recordingId>?t=<seconds>` if it loads in an iframe; otherwise show frames. (Share pages use `?at=<seconds>`, the embed page uses `?t=<seconds>`; both accept seconds or `m:ss`, per the Clips template's `app/lib/time-param.ts`.)
 - `/metrics`: totals and per-report table for PRD §3.
-- `/settings` Repro tab: repo, auto-file, required fields.
+- `/settings` Repro tab: Connect GitHub (install the app), repo picker, auto-file, required fields. Until GitHub is connected, New report still works and filing shows "Connect GitHub to file".
 
 Follow `DESIGN.md` and `.agents/skills/frontend-design/SKILL.md`. Target 100 ms UI feedback (framework rule).
 
@@ -144,10 +148,10 @@ The agent engine is set by env, read by the framework: `AGENT_ENGINE` and `AGENT
 
 ## 8. Deploy
 
-Optional for judging but recommended for a live link. `netlify.toml` comes with the template. Use a free Postgres (Neon or Supabase free tier), set `DATABASE_URL`, a stable `BETTER_AUTH_SECRET`, the model key and `GITHUB_TOKEN`. See `pnpm action docs-search --slug deploy-an-app`.
+Optional for judging but recommended for a live link. `netlify.toml` comes with the template. Use a free Postgres (Neon or Supabase free tier), set `DATABASE_URL`, a stable `BETTER_AUTH_SECRET`, the model key and the three `GITHUB_APP_*` values, and add the deployed Setup URL to the GitHub App. See `pnpm action docs-search --slug deploy-an-app`.
 
 ## 9. Roadmap (not v1)
 
 - Anonymous customer reporting: Clips "Embed" flow. Repro's backend holds a Clips org service token, calls `create-recording-intake-link`, embeds the recorder iframe, receives `agent-native.clips.bug-report.submitted` with `recordingId`, then exchanges it for agent access with `create-intake-agent-link`. Documented in Clips docs `template-clips-embed`.
-- Webhook automation: GitHub comment `@repro` triggers a re-check (framework webhook automations).
-- Fix PRs via an embedded coding harness.
+- Webhook automation: GitHub comment mentioning the bot triggers a re-check (framework webhook automations). If someone asks the bot for a pull request or a fix, it replies that fixes aren't offered and how to contact the maintainer.
+- Fix PRs via an embedded coding harness (paid feature, not planned for the hackathon).

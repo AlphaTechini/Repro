@@ -8,7 +8,7 @@ Every claim the README makes, where it's implemented, and what proves it. Filled
 
 ## Not built
 
-- Pull request creation (out of scope for v1).
+- Pull request creation or code fixes (out of scope; the GitHub App has no code or pull-request permissions).
 - Anonymous external reporters / embedded recorder (roadmap).
 
 ## Pre-existing vs built during the hackathon

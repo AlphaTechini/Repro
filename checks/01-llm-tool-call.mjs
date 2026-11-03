@@ -6,20 +6,24 @@
 //
 // Run:  node --env-file=.env checks/01-llm-tool-call.mjs
 //
-// Env:
-//   CHECK_PROVIDER = openai | anthropic | google
-//   CHECK_MODEL    = model id (see .env.example for suggestions)
-//   OPENAI_API_KEY / ANTHROPIC_API_KEY / GOOGLE_GENERATIVE_AI_API_KEY
-//   CHECK_RUNS     = how many requests to send (default 5)
+// Uses the same .env values the app uses: AGENT_ENGINE, AGENT_MODEL and the
+// matching key (OPENAI_API_KEY / ANTHROPIC_API_KEY / GOOGLE_GENERATIVE_AI_API_KEY).
+// Optional: CHECK_RUNS = how many requests to send (default 5).
 //
 // OpenAI free-token note: OpenAI's data-sharing offer lists "tool use" as excluded.
-// After running this with CHECK_PROVIDER=openai, open
+// After running this with OpenAI, open
 //   https://platform.openai.com/usage/chat-completions
 // group by "service tier", and compare against Costs. If these requests show as
 // "data sharing incentive tier" with no cost, tool calls are free for you.
 
-const provider = (process.env.CHECK_PROVIDER || "").trim();
-const model = (process.env.CHECK_MODEL || "").trim();
+const engine = (process.env.AGENT_ENGINE || "").trim();
+const provider = {
+  "ai-sdk:openai": "openai",
+  anthropic: "anthropic",
+  "ai-sdk:anthropic": "anthropic",
+  "ai-sdk:google": "google",
+}[engine];
+const model = (process.env.AGENT_MODEL || "").trim();
 const runs = Number(process.env.CHECK_RUNS || 5);
 
 const SYSTEM =
@@ -54,7 +58,7 @@ function fail(msg) {
 }
 
 if (!["openai", "anthropic", "google"].includes(provider)) {
-  fail("Set CHECK_PROVIDER to openai, anthropic or google.");
+  fail(`AGENT_ENGINE must be ai-sdk:openai, anthropic or ai-sdk:google (got "${engine}").`);
 }
 
 async function listGoogleModels(key) {
@@ -152,10 +156,10 @@ async function callGoogle() {
 if (!model) {
   if (provider === "google" && process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
     const names = await listGoogleModels(process.env.GOOGLE_GENERATIVE_AI_API_KEY);
-    console.log("CHECK_MODEL is empty. Models your Google key can use:\n  " + names.join("\n  "));
+    console.log("AGENT_MODEL is empty. Models your Google key can use:\n  " + names.join("\n  "));
     process.exit(1);
   }
-  fail("Set CHECK_MODEL.");
+  fail("Set AGENT_MODEL.");
 }
 
 const call = { openai: callOpenAI, anthropic: callAnthropic, google: callGoogle }[provider];

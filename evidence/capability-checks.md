@@ -1,20 +1,19 @@
 # Capability check results
 
-Paste the full output of each check here, with the date. These results decide the model provider and how `read-clip` parses Clips responses (see docs/BUILD-PLAN.md, Step 0).
+Paste the full output of each check here, with the date. No keys or tokens.
 
-## 01 LLM tool call
+## 01 Model tool call (`node --env-file=.env checks/01-llm-tool-call.mjs`)
 
 - Date:
-- Provider / model:
+- AGENT_ENGINE / AGENT_MODEL:
 - Output:
 
 ```
 ```
 
-- OpenAI only: did the usage dashboard show these runs under "data sharing incentive tier" with no cost? (yes / no)
-- **Decision:** AGENT_ENGINE= , AGENT_MODEL=
+- OpenAI only: did the usage dashboard show these runs as "data sharing incentive tier" with no cost? (yes / no)
 
-## 02 Clips agent context
+## 02 Clips agent context (`node checks/02-clips-agent-context.mjs <link>`)
 
 - Date:
 - Clip link:
@@ -23,13 +22,4 @@ Paste the full output of each check here, with the date. These results decide th
 ```
 ```
 
-- **Field names to use in read-clip:**
-
-## 03 GitHub issue
-
-- Date:
-- Repo:
-- Output:
-
-```
-```
+- Field names `read-clip` should use (from the output):
