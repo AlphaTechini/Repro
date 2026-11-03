@@ -281,3 +281,223 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.34);
 }
+
+/* ==========================================================================
+   Repro
+   Design direction: "Evidence Ledger". Spec: docs/UI-DESIGN.md.
+   Owned by the Repro design spec. Everything below is additive: it defines
+   Repro's semantic signal colours, two type steps, and the motion
+   used by app/components/repro/**. The shell tokens above stay untouched.
+
+   Colour values are full OKLCH colours (not HSL triples), so use them as
+   `var(--status-ready)` in CSS and as `bg-status-ready/10`,
+   `text-sev-critical`, `border-source-agent/40` etc. in Tailwind.
+   Signal colours are for glyphs, bars, tints and borders. Text stays ink
+   (`text-foreground` / `text-muted-foreground`) except the `*-ink` tokens,
+   which are tuned to 4.5:1 for small text on `bg-background`.
+   ========================================================================== */
+
+:root {
+  /* Report status (glyph colour) */
+  --status-draft: oklch(0.62 0 0);
+  --status-needs-info: oklch(0.665 0.15 64);
+  --status-ready: oklch(0.62 0.15 152);
+  --status-filed: oklch(0.56 0.17 292);
+  --status-duplicate: oklch(0.6 0.015 260);
+
+  /* Severity (glyph colour). Low/medium stay ink on purpose. */
+  --sev-low: oklch(0.66 0 0);
+  --sev-medium: oklch(0.46 0 0);
+  --sev-high: oklch(0.64 0.17 48);
+  --sev-critical: oklch(0.56 0.21 27);
+
+  /* Diagnostics: console level and HTTP status */
+  --level-error: oklch(0.56 0.21 27);
+  --level-warn: oklch(0.665 0.15 64);
+  --level-info: oklch(0.6 0 0);
+
+  /* Provenance: who filled a field */
+  --source-agent: oklch(0.56 0.16 252);
+  --source-human: oklch(0.32 0 0);
+
+  /* Small-text inks (>= 4.5:1 on --background) */
+  --source-agent-ink: oklch(0.5 0.16 252);
+  --needs-info-ink: oklch(0.5 0.11 62);
+  --error-ink: oklch(0.5 0.19 27);
+  --ready-ink: oklch(0.47 0.12 152);
+
+  /* Meters */
+  --meter-track: oklch(0.92 0 0);
+  --meter-fill: oklch(0.36 0 0);
+  --meter-complete: var(--status-ready);
+
+  /* Agent-fill highlight (start colour of the flash) */
+  --agent-flash: color-mix(in oklab, var(--source-agent) 13%, transparent);
+
+  --repro-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --repro-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --repro-dur-fast: 120ms;
+  --repro-dur-base: 180ms;
+  --repro-dur-flash: 1600ms;
+}
+
+.dark {
+  --status-draft: oklch(0.6 0 0);
+  --status-needs-info: oklch(0.8 0.14 75);
+  --status-ready: oklch(0.74 0.15 152);
+  --status-filed: oklch(0.72 0.14 292);
+  --status-duplicate: oklch(0.62 0.015 260);
+
+  --sev-low: oklch(0.55 0 0);
+  --sev-medium: oklch(0.78 0 0);
+  --sev-high: oklch(0.76 0.15 52);
+  --sev-critical: oklch(0.7 0.19 25);
+
+  --level-error: oklch(0.72 0.17 25);
+  --level-warn: oklch(0.8 0.14 75);
+  --level-info: oklch(0.66 0 0);
+
+  --source-agent: oklch(0.74 0.13 252);
+  --source-human: oklch(0.88 0 0);
+
+  --source-agent-ink: oklch(0.78 0.12 252);
+  --needs-info-ink: oklch(0.83 0.13 78);
+  --error-ink: oklch(0.76 0.16 25);
+  --ready-ink: oklch(0.78 0.14 152);
+
+  --meter-track: oklch(0.33 0 0);
+  --meter-fill: oklch(0.86 0 0);
+
+  --agent-flash: color-mix(in oklab, var(--source-agent) 18%, transparent);
+}
+
+@theme inline {
+  --color-status-draft: var(--status-draft);
+  --color-status-needs-info: var(--status-needs-info);
+  --color-status-ready: var(--status-ready);
+  --color-status-filed: var(--status-filed);
+  --color-status-duplicate: var(--status-duplicate);
+
+  --color-sev-low: var(--sev-low);
+  --color-sev-medium: var(--sev-medium);
+  --color-sev-high: var(--sev-high);
+  --color-sev-critical: var(--sev-critical);
+
+  --color-level-error: var(--level-error);
+  --color-level-warn: var(--level-warn);
+  --color-level-info: var(--level-info);
+
+  --color-source-agent: var(--source-agent);
+  --color-source-human: var(--source-human);
+
+  --color-source-agent-ink: var(--source-agent-ink);
+  --color-needs-info-ink: var(--needs-info-ink);
+  --color-error-ink: var(--error-ink);
+  --color-ready-ink: var(--ready-ink);
+
+  --color-meter-track: var(--meter-track);
+  --color-meter-fill: var(--meter-fill);
+  --color-meter-complete: var(--meter-complete);
+}
+
+@theme {
+  /* text-2xs = 11px: column headers, chips, meta.
+     text-md  = 13px: dense UI body (tables, form values, panels).
+     Yes, md (13px) sits between xs (12px) and sm (14px). The names must be
+     t-shirt sizes so tailwind-merge (cn) treats them as font sizes; a name
+     like `text-ui` would be read as a colour and silently dropped next to
+     `text-muted-foreground`. Radii use the theme's rounded-sm/md/lg. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-md: 0.8125rem;
+  --text-md--line-height: 1.25rem;
+
+  --animate-repro-chip-in: repro-chip-in 180ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-repro-breathe: repro-breathe 1.4s cubic-bezier(0.65, 0, 0.35, 1)
+    infinite;
+
+  @keyframes repro-chip-in {
+    from {
+      opacity: 0;
+      transform: scale(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes repro-breathe {
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+}
+
+/* "The agent just filled this." Put `repro-agent-flash` on an element that is
+   re-mounted (keyed) each time the agent writes; FieldShell does this. */
+@keyframes repro-agent-flash {
+  0% {
+    background-color: var(--agent-flash);
+    box-shadow: inset 2px 0 0 var(--source-agent);
+  }
+  70% {
+    box-shadow: inset 2px 0 0
+      color-mix(in oklab, var(--source-agent) 40%, transparent);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: inset 2px 0 0 transparent;
+  }
+}
+
+@utility repro-agent-flash {
+  animation: repro-agent-flash var(--repro-dur-flash) var(--repro-ease-out) both;
+}
+
+/* Inbox row keyboard focus: an inset ink rule on the leading edge. */
+@utility repro-row-focus {
+  box-shadow: inset 2px 0 0 hsl(var(--ring));
+}
+
+/* Hairline progress fill; width animates, colour cross-fades at 100%. */
+@utility repro-meter-fill {
+  transition:
+    width var(--repro-dur-base) var(--repro-ease-out),
+    background-color var(--repro-dur-base) linear;
+}
+
+/* Quiet inputs and the missing-field outline are class recipes in
+   app/components/repro/ui/recipes.ts (merged with cn), not utilities, so
+   tailwind-merge can resolve them against the Input primitive's classes. */
+
+@media (prefers-reduced-motion: reduce) {
+  .repro-agent-flash {
+    /* Keep the information, drop the motion: a static tint that clears. */
+    animation: repro-agent-flash-static var(--repro-dur-flash) steps(1, end)
+      both;
+  }
+  .animate-repro-chip-in,
+  .animate-repro-breathe {
+    animation: none;
+  }
+  .repro-meter-fill {
+    transition: none;
+  }
+}
+
+@keyframes repro-agent-flash-static {
+  0% {
+    background-color: var(--agent-flash);
+    box-shadow: inset 2px 0 0 var(--source-agent);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+}
+/* ======================== end Repro ======================== */
