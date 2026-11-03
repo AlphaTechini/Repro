@@ -24,6 +24,7 @@ const provider = {
   "ai-sdk:google": "google",
 }[engine];
 const model = (process.env.AGENT_MODEL || "").trim();
+// guard:allow-env-credential — local capability check script, never deployed
 const runs = Number(process.env.CHECK_RUNS || 5);
 
 const SYSTEM =
@@ -72,6 +73,7 @@ async function listGoogleModels(key) {
 }
 
 async function callOpenAI() {
+// guard:allow-env-credential — local capability check script, never deployed
   const key = process.env.OPENAI_API_KEY;
   if (!key) fail("OPENAI_API_KEY is not set.");
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -100,6 +102,7 @@ async function callOpenAI() {
 }
 
 async function callAnthropic() {
+// guard:allow-env-credential — local capability check script, never deployed
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) fail("ANTHROPIC_API_KEY is not set.");
   const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -128,6 +131,7 @@ async function callAnthropic() {
 }
 
 async function callGoogle() {
+// guard:allow-env-credential — local capability check script, never deployed
   const key = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   if (!key) fail("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
   const res = await fetch(
@@ -154,7 +158,9 @@ async function callGoogle() {
 }
 
 if (!model) {
+// guard:allow-env-credential — local capability check script, never deployed
   if (provider === "google" && process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+// guard:allow-env-credential — local capability check script, never deployed
     const names = await listGoogleModels(process.env.GOOGLE_GENERATIVE_AI_API_KEY);
     console.log("AGENT_MODEL is empty. Models your Google key can use:\n  " + names.join("\n  "));
     process.exit(1);

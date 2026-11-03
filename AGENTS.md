@@ -31,3 +31,31 @@ Use `adding-a-feature` for functional parity and `frontend-design` for a user-fa
 Before building common workspace or agent UI, read `agent-native-toolkit`; for supported customization, read `customizing-agent-native`.
 
 - Guarded verification: run `pnpm agent-native:doctor`; fix findings before done.
+
+## Repro
+
+Repro turns a Clips recording into a fix-ready GitHub issue with the least human effort.
+
+Views: `reports` (`/reports`, inbox), `report` (`/reports/<id>`, form and agent sidebar), `metrics` (`/metrics`), settings (`/settings/github`).
+
+| Action | Purpose |
+|---|---|
+| `create-report` | Validate a Clips link and create a draft report |
+| `read-clip` | Store transcript, console issues, failed requests and frame timestamps |
+| `get-clip-frame` | Return one Clip frame image at `atMs` |
+| `update-report-fields` | Patch report fields; agent writes must include a `source` |
+| `check-report-completeness` | Compute missing required fields and completeness percent |
+| `record-followups` | Store follow-up questions asked (max 3 per report) |
+| `find-similar-reports` | Find likely duplicates among reports and open `repro` issues |
+| `mark-duplicate` | Mark a report as a duplicate of another |
+| `file-github-issue` | File the GitHub issue as the Repro App bot (idempotent) |
+| `list-reports` | List reports for the inbox |
+| `get-report` | Read one report with fields, sources and evidence |
+| `list-report-events` | List the change log for one report |
+| `get-metrics` | Per-report and total metrics (PRD §3) |
+| `export-metrics` | Write `evidence/metrics.json` (CLI) |
+| `get-settings` | Read GitHub connection, repo, auto-file and required fields |
+| `update-settings` | Change repo, auto-file or required fields (owner approval) |
+| `list-github-repos` | List repos the Repro App installation can access |
+
+Follow `.agents/skills/repro/SKILL.md` for the report loop.
