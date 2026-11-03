@@ -93,7 +93,7 @@ export function useClipLink({
         tone: "mono" as const,
         text: t("newReport.parsed", { id: parsed.id, host: parsed.host }),
       };
-    return { tone: "muted" as const, text: t("newReport.hint") };
+    return { tone: "mono" as const, text: t("newReport.hint"), idle: true as const };
   })();
 
   const validate = useCallback(() => {

@@ -12,7 +12,7 @@ import type {
   ReproSettingsView,
 } from "@shared/repro/types";
 
-import { FIELD_LABEL } from "./fields";
+import { FIELD_LABEL, parseClipTimeInput } from "./fields";
 
 export type FieldValue = string | string[] | null;
 
@@ -56,6 +56,11 @@ function applyChanges(report: Report, changes: FieldChange[]): Report {
       case "environment":
         next[c.field] = typeof c.value === "string" ? c.value : null;
         break;
+      case "breaksAt": {
+        const ms = typeof c.value === "string" ? parseClipTimeInput(c.value) : null;
+        next.breaksAtMs = ms;
+        break;
+      }
       case "frequency":
         next.frequency = (c.value as Report["frequency"]) ?? null;
         break;

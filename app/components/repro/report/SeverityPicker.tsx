@@ -1,7 +1,6 @@
 import { useT } from "@agent-native/core/client/i18n";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { cn } from "@/lib/utils";
 
 import { SEVERITIES, SEVERITY_LABEL, SeverityGlyph, type Severity } from "../ui";
 
@@ -10,13 +9,11 @@ export function SeverityPicker({
   onChange,
   disabled,
   id,
-  invalid,
 }: {
   value: Severity | null;
   onChange: (value: Severity) => void;
   disabled?: boolean | undefined;
   id?: string | undefined;
-  invalid?: boolean | undefined;
 }) {
   const t = useT();
   return (
@@ -28,12 +25,7 @@ export function SeverityPicker({
       value={value ?? ""}
       onValueChange={(v) => v && onChange(v as Severity)}
       disabled={disabled}
-      className={cn(
-        "w-fit gap-0 rounded-md border p-0.5",
-        invalid
-          ? "border-dashed border-status-needs-info/55"
-          : "border-input",
-      )}
+      className="w-fit gap-0 rounded-md border border-input p-0.5"
       aria-label={t("report.severity")}
     >
       {SEVERITIES.map((s) => (
@@ -41,10 +33,10 @@ export function SeverityPicker({
           key={s}
           value={s}
           aria-label={SEVERITY_LABEL[s]}
-          className="h-7 gap-1.5 rounded-sm border-0 px-2.5 text-md text-muted-foreground data-[state=on]:bg-accent data-[state=on]:text-foreground"
+          className="h-7 gap-1.5 rounded-sm border-0 px-2.5 text-md text-muted-foreground data-[state=on]:bg-accent data-[state=on]:font-medium data-[state=on]:text-foreground"
         >
           <SeverityGlyph severity={s} />
-          <span className="hidden @md:inline">{SEVERITY_LABEL[s]}</span>
+          <span className="hidden in-data-[state=on]:inline @lg:inline">{SEVERITY_LABEL[s]}</span>
         </ToggleGroupItem>
       ))}
     </ToggleGroup>

@@ -204,7 +204,7 @@ export function GithubSettingsArea() {
             description={
               settings.githubAppConfigured
                 ? t("settings.connectBody")
-                : t("settings.notConfiguredBody")
+                : undefined
             }
             control={
               settings.githubAppConfigured && settings.githubInstallUrl ? (
@@ -222,11 +222,20 @@ export function GithubSettingsArea() {
               ) : undefined
             }
           >
-            {!settings.githubAppConfigured ? (
-              <Notice tone="warning" title={t("settings.notConfigured")}>
-                {t("settings.notConfiguredDetail")}
-              </Notice>
-            ) : (
+            <div className="flex flex-col gap-3">
+              {!settings.githubAppConfigured ? (
+                <Notice tone="warning" title={t("settings.notConfigured")}>
+                  {t("settings.setEnvPrefix")}{" "}
+                  {["GITHUB_APP_ID", "GITHUB_APP_SLUG", "GITHUB_APP_PRIVATE_KEY"].map((v, i) => (
+                    <span key={v}>
+                      {i > 0 ? ", " : null}
+                      <code className="rounded-sm bg-muted px-1 font-mono text-2xs">{v}</code>
+                    </span>
+                  ))}{" "}
+                  {t("settings.setEnvSuffix")}{" "}
+                  <code className="rounded-sm bg-muted px-1 font-mono text-2xs">docs/SETUP.md</code>.
+                </Notice>
+              ) : null}
               <div className="flex flex-col gap-1.5">
                 <p className="text-xs font-medium text-muted-foreground">{t("settings.filingNeeds")}</p>
                 <ul className="flex flex-col gap-1.5 text-md">
@@ -240,11 +249,11 @@ export function GithubSettingsArea() {
                   </li>
                   <li className="flex items-center gap-2">
                     <IconCircleCheck aria-hidden="true" className="size-3.5 text-status-ready" />
-                    {t("settings.requiredSet", { n: doneRequired })}
+                    {t("settings.requiredSet", { count: doneRequired })}
                   </li>
                 </ul>
               </div>
-            )}
+            </div>
           </SettingsRow>
           {requiredRow}
         </SettingsGroup>

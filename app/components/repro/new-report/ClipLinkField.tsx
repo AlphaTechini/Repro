@@ -30,8 +30,17 @@ function handlePaste(link: ClipLink, e: React.ClipboardEvent<HTMLInputElement>) 
   link.submit(text);
 }
 
-export function ClipLinkMessage({ link }: { link: ClipLink }) {
+export function ClipLinkMessage({
+  link,
+  hideIdle,
+  className,
+}: {
+  link: ClipLink;
+  hideIdle?: boolean | undefined;
+  className?: string | undefined;
+}) {
   const { tone, text } = link.message;
+  if (hideIdle && "idle" in link.message) return <p className="min-h-4" />;
   return (
     <p
       aria-live="polite"
@@ -81,7 +90,7 @@ export function ClipLinkInline({ link, autoFocus, className }: FieldProps) {
             spellCheck={false}
             autoComplete="off"
             readOnly={link.submitting}
-            className="h-9 ps-9"
+            className="h-9 ps-9 aria-invalid:border-level-error aria-invalid:focus-visible:ring-level-error/30"
           />
         </div>
         <Button type="submit" disabled={link.submitting || link.value.trim() === ""}>
@@ -93,7 +102,7 @@ export function ClipLinkInline({ link, autoFocus, className }: FieldProps) {
               : t("newReport.create")}
         </Button>
       </div>
-      <ClipLinkMessage link={link} />
+      <ClipLinkMessage link={link} hideIdle />
     </form>
   );
 }

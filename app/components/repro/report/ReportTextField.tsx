@@ -123,7 +123,7 @@ export function ReportTextField({
         "resize-none overflow-hidden",
         variant === "title"
           ? "min-h-0 py-1 text-xl font-semibold leading-7 tracking-tight"
-          : "min-h-[4.5rem] py-1.5 text-sm leading-6",
+          : "min-h-9 py-1.5 text-sm leading-6 [field-sizing:content] focus:min-h-[4.5rem]",
         missing && missingOutline,
         readOnly && "hover:border-transparent",
       )}

@@ -60,16 +60,17 @@ export function MetricsView() {
   const totals = metrics?.totals;
   const loading = query.isLoading;
   const filed = totals?.filed ?? 0;
-  const empty = !loading && !query.isError && filed === 0;
+  const total = totals?.reports ?? 0;
+  const empty = !loading && !query.isError && total === 0;
   const fieldsTotal = (totals?.agentFields ?? 0) + (totals?.humanFields ?? 0);
-  const agentPct = filed > 0 && fieldsTotal > 0 ? Math.round(((totals?.agentFields ?? 0) / fieldsTotal) * 100) : null;
+  const agentPct = fieldsTotal > 0 ? Math.round(((totals?.agentFields ?? 0) / fieldsTotal) * 100) : null;
   const completePct = totals?.avgCompletenessAtFiling != null ? Math.round(totals.avgCompletenessAtFiling) : null;
   const fullCount = metrics?.reports.filter((r) => r.status === "filed" && r.completenessAtFiling === 100).length ?? 0;
-  const avgQ = filed > 0 ? (totals?.avgFollowups ?? null) : null;
+  const avgQ = totals?.avgFollowups ?? null;
 
   return (
     <div className="@container min-h-full">
-      <div className="mx-auto flex w-full max-w-[76rem] flex-col gap-10 px-4 pb-16 pt-6 @3xl:px-8">
+      <div className="flex w-full max-w-[76rem] flex-col gap-10 px-4 pb-16 pt-6">
         {query.isError ? (
           <Notice
             tone="danger"
@@ -88,7 +89,7 @@ export function MetricsView() {
             label={t("metrics.kpiMedian")}
             loading={loading}
             value={totals?.medianTimeToFixReadyMs != null ? formatDuration(totals.medianTimeToFixReadyMs) : "—"}
-            footnote={t("metrics.acrossFiled", { n: filed })}
+            footnote={filed > 0 ? t("metrics.acrossFiled", { count: filed }) : t("metrics.noFiledYet")}
           />
           <KpiTile
             label={t("metrics.kpiQuestions")}
@@ -96,6 +97,7 @@ export function MetricsView() {
             value={avgQ != null ? avgQ.toFixed(1) : "—"}
             unit={avgQ != null ? t("metrics.perReport") : undefined}
             target={{ label: "≤ 3", met: avgQ != null ? avgQ <= 3 : null }}
+            footnote={total > 0 ? t("metrics.acrossReports", { count: total }) : undefined}
           >
             {avgQ != null ? <QuestionPips count={Math.round(avgQ)} /> : null}
           </KpiTile>
@@ -118,7 +120,7 @@ export function MetricsView() {
             loading={loading}
             value={completePct != null ? `${completePct}%` : "—"}
             target={{ label: "100%", met: completePct != null ? completePct === 100 : null }}
-            footnote={filed > 0 ? t("metrics.xOfN", { x: fullCount, n: filed }) : undefined}
+            footnote={filed > 0 ? t("metrics.xOfN", { x: fullCount, count: filed }) : t("metrics.noFiledYet")}
           />
         </KpiStrip>
 

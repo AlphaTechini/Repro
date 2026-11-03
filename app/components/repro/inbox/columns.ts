@@ -2,9 +2,9 @@
 export const COL = {
   status: "w-9 @5xl:w-28",
   severity: "hidden @2xl:table-cell w-9 @5xl:w-24",
-  complete: "w-28",
+  complete: "hidden @md:table-cell w-28",
   reporter: "hidden @5xl:table-cell w-36",
-  created: "w-16",
-  issue: "hidden @2xl:table-cell w-16",
+  created: "hidden @md:table-cell w-16",
+  issue: "hidden @2xl:table-cell w-16 text-end",
   fixReady: "hidden @5xl:table-cell w-20",
 } as const;

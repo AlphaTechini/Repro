@@ -2,10 +2,12 @@ import { useT } from "@agent-native/core/client/i18n";
 import { IconArrowUpRight } from "@tabler/icons-react";
 import { forwardRef, useEffect, useState } from "react";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { FrameMarker } from "@shared/repro/types";
 
 import { clipSeconds, formatClipTime } from "../ui";
+import { ClipPlaceholder } from "./ClipPlaceholder";
 import { FrameGrid } from "./FrameGrid";
 import { shareUrlAt, type SeekTarget } from "./seek";
 
@@ -17,6 +19,9 @@ interface ClipPlayerProps {
   seek: SeekTarget;
   durationMs: number | null | undefined;
   frames: FrameMarker[];
+  /** The clip has been read, so the embed is known to be reachable. */
+  clipRead: boolean;
+  readFailed?: boolean;
   onSeek: (atMs: number) => void;
 }
 
@@ -28,7 +33,7 @@ const LOAD_TIMEOUT_MS = 6000;
  */
 export const ClipPlayer = forwardRef<HTMLDivElement, ClipPlayerProps>(
   function ClipPlayer(
-    { reportId, recordingId, origin, shareUrl, seek, durationMs, frames, onSeek },
+    { reportId, recordingId, origin, shareUrl, seek, durationMs, frames, clipRead, readFailed = false, onSeek },
     ref,
   ) {
     const t = useT();
@@ -47,37 +52,38 @@ export const ClipPlayer = forwardRef<HTMLDivElement, ClipPlayerProps>(
     }, [applied.nonce, recordingId]);
 
     useEffect(() => {
-      if (loaded || failed) return;
+      if (!clipRead || loaded || failed) return;
       const id = window.setTimeout(() => setFailed(true), LOAD_TIMEOUT_MS);
       return () => window.clearTimeout(id);
-    }, [loaded, failed, applied.nonce]);
+    }, [clipRead, loaded, failed, applied.nonce]);
 
     const framesMode = showFrames || failed;
     const src = `${origin}/embed/${encodeURIComponent(recordingId)}?t=${clipSeconds(applied.atMs)}`;
 
     return (
       <div ref={ref} className="flex flex-col gap-2">
-        {framesMode ? (
-          <div className="flex flex-col gap-2">
-            {failed && !showFrames ? (
-              <p className="text-xs text-muted-foreground">
-                {t("evidence.embedUnavailable")}
-              </p>
-            ) : null}
-            <FrameGrid reportId={reportId} frames={frames} onSeek={onSeek} />
-          </div>
+        {!clipRead ? (
+          <ClipPlaceholder state={readFailed ? "unavailable" : "pending"} shareUrl={shareUrl} />
+        ) : framesMode && frames.length > 0 ? (
+          <FrameGrid reportId={reportId} frames={frames} onSeek={onSeek} />
+        ) : failed ? (
+          <ClipPlaceholder state="unavailable" shareUrl={shareUrl} />
         ) : (
-          <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-border bg-black">
+          <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-border bg-muted/40">
             <iframe
               key={applied.nonce}
               src={src}
               title={t("evidence.playerTitle")}
               allow="autoplay; fullscreen; picture-in-picture"
               onLoad={() => setLoaded(true)}
-              className="absolute inset-0 size-full"
+              className={cn(
+                "absolute inset-0 size-full opacity-0 transition-opacity duration-200",
+                loaded && "opacity-100",
+              )}
             />
           </div>
         )}
+        {clipRead && !(failed && frames.length === 0) ? (
         <div className="flex items-center justify-between gap-3 text-2xs text-muted-foreground">
           <span className="font-mono tabular-nums">
             {durationMs != null ? formatClipTime(durationMs) : null}
@@ -104,6 +110,7 @@ export const ClipPlayer = forwardRef<HTMLDivElement, ClipPlayerProps>(
             </a>
           </span>
         </div>
+        ) : null}
       </div>
     );
   },

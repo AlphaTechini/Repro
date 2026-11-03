@@ -47,8 +47,8 @@ export function InboxTable({
   }
 
   return (
-    <div className="px-4 @3xl:px-8">
-      <table className="w-full table-fixed border-collapse" aria-label={t("reports.tableLabel")}>
+    <div>
+      <table className="w-full table-fixed border-collapse [&_tr>:first-child]:ps-4 [&_tr>:last-child]:pe-4" aria-label={t("reports.tableLabel")}>
         <thead className="sticky top-0 z-10 bg-background">
           <tr>
             <th scope="col" className={cn(th, COL.status)}>
@@ -70,7 +70,7 @@ export function InboxTable({
             <th scope="col" className={cn(th, COL.created, "text-end")}>
               {t("reports.colCreated")}
             </th>
-            <th scope="col" className={cn(th, COL.issue)}>
+            <th scope="col" className={cn(th, COL.issue, "text-end")}>
               {t("reports.colIssue")}
             </th>
             <th scope="col" className={cn(th, COL.fixReady, "text-end")}>

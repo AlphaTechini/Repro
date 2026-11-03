@@ -39,8 +39,8 @@ export function InboxFilterTabs({
 }) {
   const t = useT();
   return (
-    <div className="flex h-11 items-center gap-3 border-b border-border px-4 @3xl:px-8">
-      <div className="min-w-0 overflow-x-auto [scrollbar-width:none]">
+    <div className="flex h-11 items-center gap-3 border-b border-border px-4">
+      <div className="min-w-0 overflow-x-auto [scrollbar-width:none] [mask-image:linear-gradient(to_right,black_85%,transparent)] @md:[mask-image:none]">
         <Tabs
           value={value}
           onValueChange={(v) => isInboxFilter(v) && onChange(v)}

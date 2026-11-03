@@ -71,8 +71,8 @@ export function NewReportDialog({
           }}
         >
           <ClipLinkBar link={link} autoFocus />
-          <div className="flex items-center justify-between gap-3 px-4 py-3">
-            <ClipLinkMessage link={link} />
+          <ClipLinkMessage link={link} className="min-h-9 px-4 pt-2.5" />
+          <div className="flex items-center justify-end gap-3 px-4 pb-3 pt-1">
             <div className="flex shrink-0 items-center gap-2">
               <Kbd className="hidden @sm:inline-flex" aria-hidden="true">
                 Esc
@@ -94,7 +94,7 @@ export function NewReportDialog({
                     ? t("newReport.tryAgain")
                     : t("newReport.create")}
                 {!link.submitting ? (
-                  <Kbd className="hidden @sm:inline-flex" aria-hidden="true">
+                  <Kbd className="hidden border-0 bg-primary-foreground/15 text-primary-foreground/80 @sm:inline-flex" aria-hidden="true">
                     ↵
                   </Kbd>
                 ) : null}

@@ -6,6 +6,21 @@ import type {
   RequirableField,
 } from "@shared/repro/types";
 
+/** "0:07", "1:02:03" or "7" (seconds) -> ms. null = invalid. */
+export function parseClipTimeInput(input: string): number | null {
+  const raw = input.trim();
+  if (!raw) return null;
+  if (/^\d+$/.test(raw)) return Number(raw) * 1000;
+  const parts = raw.split(":");
+  if (parts.length < 2 || parts.length > 3 || !parts.every((p) => /^\d+$/.test(p))) return null;
+  const nums = parts.map(Number);
+  const secs = nums[nums.length - 1] ?? 0;
+  const mins = nums[nums.length - 2] ?? 0;
+  const hours = nums.length === 3 ? (nums[0] ?? 0) : 0;
+  if (secs > 59 || (nums.length === 3 && mins > 59)) return null;
+  return ((hours * 60 + mins) * 60 + secs) * 1000;
+}
+
 export const FREQUENCY_ORDER: readonly Frequency[] = [
   "always",
   "often",
@@ -21,16 +36,17 @@ export const FIELD_LABEL: Record<RequirableField, string> = {
   frequency: "Frequency",
   severity: "Severity",
   environment: "Environment",
-  evidence: "Recording timestamp",
+  evidence: "Breaks at",
 };
 
 /** Domain field -> DOM id of its control inside the report form. */
 export function fieldDomId(field: RequirableField | ReportField): string {
-  return field === "evidence" ? "title" : `report-${field}`;
+  return field === "evidence" ? "report-breaksAt" : `report-${field}`;
 }
 
 /** Fields the agent can fill from the recording. */
 export const AGENT_FILLABLE: readonly ReportField[] = [
+  "breaksAt",
   "title",
   "summary",
   "steps",

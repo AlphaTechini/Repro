@@ -2,7 +2,7 @@ import { navigateWithAgentChatViewTransition } from "@agent-native/core/client/a
 import { useT } from "@agent-native/core/client/i18n";
 import { focusAgentChat } from "@agent-native/toolkit/app/chat";
 import { AgentSidebar } from "@agent-native/toolkit/app/chat";
-import { useMemo, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
 
 import { chatThreadPath } from "@/lib/chat-paths";
@@ -25,6 +25,10 @@ export function AgentInspector({
   const navigate = useNavigate();
   const t = useT();
   const { pathname } = useLocation();
+  // On phones the sidebar is a full-width sheet: never open it on first load.
+  const [isPhone] = useState(
+    () => typeof window !== "undefined" && !window.matchMedia("(min-width: 48rem)").matches,
+  );
   const encodedReportId = pathname.match(REPORT_PATH)?.[1] ?? null;
   const scope = useMemo(() => {
     if (!encodedReportId) return null;
@@ -34,7 +38,7 @@ export function AgentInspector({
     } catch {
       // keep the raw segment
     }
-    return { type: "repro-report", id, contextKey: "repro-report" };
+    return { type: "repro-report", id, contextKey: "repro-report", label: "Report" };
   }, [encodedReportId]);
 
   function openAskAgentFullscreen(threadId?: string) {
@@ -47,19 +51,30 @@ export function AgentInspector({
       position="right"
       chatViewTransition
       chatViewTransitionHandoff={chatHomeHandoffPending}
+      {...(isPhone ? { defaultOpen: false } : {})}
       storageKey="chat"
       scope={scope}
       isolateHistoryByScope
       browserTabId={TAB_ID}
       openOnChatRunning={chatHomeHandoffActive}
       onFullscreenRequest={openAskAgentFullscreen}
-      emptyStateText={t("chat.inspectEmptyState")}
+      emptyStateText={
+        scope ? t("report.agentEmpty") : t("chat.inspectEmptyState")
+      }
       agentPageHref="/settings/agent"
-      suggestions={[
-        t("chat.inspectSuggestionCapabilities"),
-        t("chat.inspectSuggestionHello"),
-        t("chat.inspectSuggestionAction"),
-      ]}
+      suggestions={
+        scope
+          ? [
+              t("report.suggestMissing"),
+              t("report.suggestDuplicates"),
+              t("report.suggestConsole"),
+            ]
+          : [
+              t("chat.inspectSuggestionCapabilities"),
+              t("chat.inspectSuggestionHello"),
+              t("chat.inspectSuggestionAction"),
+            ]
+      }
     >
       {children}
     </AgentSidebar>

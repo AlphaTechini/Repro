@@ -21,8 +21,9 @@ export const EvidencePanel = forwardRef<
     report: Report;
     seek: SeekTarget;
     onSeek: (atMs: number) => void;
+    readFailed?: boolean;
   }
->(function EvidencePanel({ report, seek, onSeek }, playerRef) {
+>(function EvidencePanel({ report, seek, onSeek, readFailed = false }, playerRef) {
   const t = useT();
   const evidence = report.evidence;
 
@@ -95,6 +96,8 @@ export const EvidencePanel = forwardRef<
         seek={seek}
         durationMs={evidence?.durationMs}
         frames={evidence?.frames ?? []}
+        clipRead={report.clipReadAt != null}
+        readFailed={readFailed}
         onSeek={onSeek}
       />
       {evidence?.durationMs ? (
@@ -150,7 +153,9 @@ export const EvidencePanel = forwardRef<
           </TabsContent>
         </Tabs>
       ) : (
-        <p className="text-md text-muted-foreground">{t("evidence.notRead")}</p>
+        readFailed ? (
+          <p className="text-md text-muted-foreground">{t("evidence.notRead")}</p>
+        ) : null
       )}
     </div>
   );

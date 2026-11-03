@@ -8,7 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
 import { isFieldPresent } from "@shared/repro/lib/completeness";
 import type {
   Frequency,
@@ -20,7 +19,8 @@ import type {
 
 import { AGENT_FILLABLE, FREQUENCY_ORDER } from "../lib/fields";
 import type { FieldChange } from "../lib/use-report-data";
-import { FieldShell, ProvenanceMark, fieldA11y, missingOutline } from "../ui";
+import { FieldShell, ProvenanceMark, fieldA11y } from "../ui";
+import { BreaksAtField } from "./BreaksAtField";
 import { ReportTextField } from "./ReportTextField";
 import { SeverityPicker } from "./SeverityPicker";
 import { sourcePreview } from "./SourcePreview";
@@ -143,7 +143,6 @@ export function ReportForm({
             id="report-severity"
             value={report.severity}
             disabled={readOnly}
-            invalid={sevMissing}
             onChange={(v: Severity) => onSave([{ field: "severity", value: v }])}
           />
         </FieldShell>
@@ -162,7 +161,7 @@ export function ReportForm({
           >
             <SelectTrigger
               id="report-frequency"
-              className={cn("h-8 w-48 text-sm", freqMissing && missingOutline)}
+              className="h-8 w-48 text-sm"
               {...fieldA11y("report-frequency")}
             >
               <SelectValue placeholder={t("report.frequencyPlaceholder")} />
@@ -183,6 +182,14 @@ export function ReportForm({
           single: true,
           requirable: "environment",
         })}
+        <BreaksAtField
+          valueMs={report.breaksAtMs}
+          onSave={(v) => onSave([{ field: "breaksAt", value: v }])}
+          provenance={mark("breaksAt", report.breaksAtMs != null)}
+          missing={isMissing("evidence")}
+          readOnly={readOnly}
+          flashKey={flashKeys?.breaksAt}
+        />
       </div>
 
       <div className="flex flex-col gap-6">

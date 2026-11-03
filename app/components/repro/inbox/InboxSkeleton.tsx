@@ -2,11 +2,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function InboxSkeleton() {
   return (
-    <div aria-busy="true" className="px-4 @3xl:px-8">
+    <div aria-busy="true">
       {Array.from({ length: 8 }, (_, i) => (
         <div
           key={i}
-          className="flex h-13 items-center gap-4 border-b border-border px-3"
+          className="flex h-13 items-center gap-4 border-b border-border px-4"
         >
           <Skeleton className="size-3.5 rounded-full" />
           <div className="min-w-0 flex-1">

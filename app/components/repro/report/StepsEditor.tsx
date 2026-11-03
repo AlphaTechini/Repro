@@ -1,6 +1,6 @@
 import { useT } from "@agent-native/core/client/i18n";
 import { IconGripVertical, IconPlus, IconX } from "@tabler/icons-react";
-import { useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,14 +42,21 @@ export function StepsEditor({
   while (keysRef.current.length < rows.length) keysRef.current.push(counter.current++);
   if (keysRef.current.length > rows.length) keysRef.current.length = rows.length;
 
-  function focusRow(i: number, end = true) {
-    requestAnimationFrame(() => {
-      const el = listRef.current?.querySelectorAll<HTMLInputElement>("input")[i];
-      if (!el) return;
-      el.focus();
-      if (end) el.setSelectionRange(el.value.length, el.value.length);
-    });
+  const pendingFocus = useRef<{ index: number; caret: "end" | "start" } | null>(null);
+  function focusRow(index: number, caret: "end" | "start" = "end") {
+    pendingFocus.current = { index, caret };
   }
+  // Runs before the next key event, so fast typing after Enter lands in the new row.
+  useLayoutEffect(() => {
+    const f = pendingFocus.current;
+    if (!f) return;
+    pendingFocus.current = null;
+    const el = listRef.current?.querySelectorAll<HTMLInputElement>("input")[f.index];
+    if (!el) return;
+    el.focus();
+    const pos = f.caret === "end" ? el.value.length : 0;
+    el.setSelectionRange(pos, pos);
+  });
 
   function commitNow(next: string[]) {
     d.setDraft(next);
@@ -157,13 +164,11 @@ export function StepsEditor({
                 setDragFrom(null);
               }}
               className={cn(
-                "group/step relative -mx-2 flex min-h-9 items-center gap-1.5 rounded-md px-2 hover:bg-accent/40 focus-within:bg-accent/40",
+                "group/step relative flex min-h-9 items-center gap-2",
                 dragFrom === i && "opacity-50",
               )}
             >
-              {readOnly ? (
-                <span className="size-3.5" />
-              ) : (
+              {readOnly ? null : (
                 <button
                   type="button"
                   draggable
@@ -182,12 +187,12 @@ export function StepsEditor({
                       move(i, i + 1);
                     }
                   }}
-                  className="cursor-grab rounded-sm text-muted-foreground opacity-0 outline-none focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring group-focus-within/step:opacity-100 group-hover/step:opacity-100"
+                  className="absolute -start-6 top-1/2 -translate-y-1/2 cursor-grab rounded-sm text-muted-foreground opacity-0 outline-none focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring group-focus-within/step:opacity-100 group-hover/step:opacity-100"
                 >
                   <IconGripVertical aria-hidden="true" className="size-3.5" />
                 </button>
               )}
-              <span className="w-5 shrink-0 text-end font-mono text-xs tabular-nums text-muted-foreground">
+              <span className="w-4 shrink-0 text-end font-mono text-xs tabular-nums text-muted-foreground">
                 {i + 1}.
               </span>
               <Input

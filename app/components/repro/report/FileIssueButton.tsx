@@ -48,7 +48,7 @@ export function FileIssueButton({
 
   if (issueNumber != null && issueUrl) {
     return (
-      <Button variant="outline" size="sm" asChild>
+      <Button variant="outline" size="sm" className="@max-xl/header:size-8 @max-xl/header:gap-0 @max-xl/header:px-0" asChild>
         <a
           href={issueUrl}
           target="_blank"
@@ -56,8 +56,8 @@ export function FileIssueButton({
           aria-label={t("report.openIssueN", { n: issueNumber })}
         >
           <IconBrandGithub aria-hidden="true" />
-          <span className="tabular-nums">#{issueNumber}</span>
-          <IconArrowUpRight aria-hidden="true" className="size-3 text-muted-foreground" />
+          <span className="tabular-nums @max-xl/header:sr-only">#{issueNumber}</span>
+          <IconArrowUpRight aria-hidden="true" className="size-3 text-muted-foreground @max-xl/header:hidden" />
         </a>
       </Button>
     );
@@ -65,17 +65,16 @@ export function FileIssueButton({
 
   if (githubConnected === false || repoChosen === false) {
     return (
-      <Button variant="outline" size="sm" asChild>
-        <Link to={buildSettingsRoute("app", "github")}>
+      <Button variant="outline" size="sm" className="@max-xl/header:size-8 @max-xl/header:gap-0 @max-xl/header:px-0" asChild>
+        <Link
+          to={buildSettingsRoute("app", "github")}
+          aria-label={githubConnected === false ? t("report.connectToFile") : t("report.chooseRepoToFile")}
+          title={githubConnected === false ? t("report.connectToFile") : t("report.chooseRepoToFile")}
+        >
           <IconBrandGithub aria-hidden="true" />
-          {githubConnected === false ? (
-            <>
-              {t("report.connectShort")}
-              <span className="hidden xl:inline">{t("report.connectSuffix")}</span>
-            </>
-          ) : (
-            t("report.chooseRepoToFile")
-          )}
+          <span className="@max-xl/header:sr-only">
+            {githubConnected === false ? t("report.connectToFile") : t("report.chooseRepoToFile")}
+          </span>
         </Link>
       </Button>
     );
@@ -83,9 +82,9 @@ export function FileIssueButton({
 
   if (filing) {
     return (
-      <Button size="sm" disabled>
+      <Button size="sm" disabled className="@max-xl/header:size-8 @max-xl/header:gap-0 @max-xl/header:px-0" aria-label={t("report.filing")}>
         <Spinner />
-        {t("report.filing")}
+        <span className="@max-xl/header:sr-only">{t("report.filing")}</span>
       </Button>
     );
   }
@@ -96,8 +95,9 @@ export function FileIssueButton({
       <Tooltip>
         <TooltipTrigger asChild>
           <span tabIndex={0} className="rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <Button size="sm" disabled tabIndex={-1} className="pointer-events-none">
-              {t("report.fileIssue")}
+            <Button size="sm" disabled tabIndex={-1} className="pointer-events-none @max-xl/header:size-8 @max-xl/header:gap-0 @max-xl/header:px-0" aria-label={t("report.fileIssue")}>
+              <IconBrandGithub aria-hidden="true" className="hidden @max-xl/header:block" />
+              <span className="@max-xl/header:sr-only">{t("report.fileIssue")}</span>
             </Button>
           </span>
         </TooltipTrigger>
@@ -109,9 +109,9 @@ export function FileIssueButton({
   }
 
   return (
-    <Button size="sm" onClick={onFile} disabled={githubConnected === undefined}>
+    <Button size="sm" className="@max-xl/header:size-8 @max-xl/header:gap-0 @max-xl/header:px-0" onClick={onFile} disabled={githubConnected === undefined} aria-label={t("report.fileIssue")} title={t("report.fileIssue")}>
       <IconBrandGithub aria-hidden="true" />
-      {t("report.fileIssue")}
+      <span className="@max-xl/header:sr-only">{t("report.fileIssue")}</span>
     </Button>
   );
 }

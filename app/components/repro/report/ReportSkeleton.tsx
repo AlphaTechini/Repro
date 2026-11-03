@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function ReportSkeleton() {
   return (
     <div className="@container min-h-full" aria-busy="true">
-      <div className="mx-auto grid w-full max-w-[76rem] grid-cols-1 gap-x-8 gap-y-10 px-4 pb-16 pt-6 @3xl:grid-cols-[minmax(0,1fr)_17.5rem] @3xl:px-8 @5xl:grid-cols-[minmax(0,1fr)_20rem] @5xl:gap-x-12 @6xl:grid-cols-[minmax(0,1fr)_24rem]">
+      <div className="grid w-full max-w-[76rem] grid-cols-1 gap-x-8 gap-y-10 px-4 pb-16 pt-6 @3xl:grid-cols-[minmax(0,1fr)_17.5rem] @5xl:grid-cols-[minmax(0,1fr)_20rem] @5xl:gap-x-12 @6xl:grid-cols-[minmax(0,1fr)_24rem]">
         <div className="flex max-w-[44rem] flex-col gap-8">
           <Skeleton className="h-6 w-2/3" />
           <div className="flex flex-col gap-3">

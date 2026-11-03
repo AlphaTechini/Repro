@@ -25,12 +25,12 @@ export function MissingFieldsPopover({
         <button
           type="button"
           aria-label={t("report.completenessDetails")}
-          className="rounded-md px-1.5 py-1 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="hidden rounded-md px-1.5 py-1 hover:bg-accent @md/header:block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <span className="hidden xl:inline-flex">
+          <span className="hidden @3xl/header:inline-flex">
             <CompletenessMeter percent={percent} missingCount={missing.length} size="md" />
           </span>
-          <span className="xl:hidden">
+          <span className="hidden @md/header:inline-flex @3xl/header:hidden">
             <CompletenessMeter percent={percent} missingCount={missing.length} size="md" barOnly />
           </span>
         </button>

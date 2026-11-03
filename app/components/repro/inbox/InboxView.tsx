@@ -178,7 +178,7 @@ export function InboxView() {
     <Button size="sm" onClick={() => openDialog()}>
       <IconPlus aria-hidden="true" />
       {t("reports.newReport")}
-      <Kbd className="hidden md:inline-flex" aria-hidden="true">
+      <Kbd className="hidden border-0 bg-primary-foreground/15 text-primary-foreground/80 md:inline-flex" aria-hidden="true">
         C
       </Kbd>
     </Button>,
@@ -198,7 +198,7 @@ export function InboxView() {
         <>
           <InboxFilterTabs value={filter} onChange={setFilter} counts={counts} />
           {list.isError ? (
-            <div className="px-4 pt-4 @3xl:px-8">
+            <div className="px-4 pt-4">
               <Notice
                 tone="danger"
                 title={t("reports.loadError")}

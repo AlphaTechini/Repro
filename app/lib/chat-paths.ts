@@ -51,6 +51,9 @@ export function skeletonLayoutForPath(
       ? pathname.slice(0, -1)
       : pathname;
   if (path === HOME_PATH) return "home";
+  if (path === "/reports") return "list";
+  if (/^\/reports\/[^/]+$/.test(path)) return "document";
+  if (path === "/metrics") return "dashboard";
   if (path === NEW_CHAT_PATH) return "assistant-new";
   return "assistant";
 }

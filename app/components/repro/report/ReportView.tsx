@@ -5,6 +5,7 @@ import {
   useActionQuery,
 } from "@agent-native/core/client/hooks";
 import { useT } from "@agent-native/core/client/i18n";
+import { fetchAgentEngineConfiguredState } from "@agent-native/core/client/agent-engine-readiness";
 import {
   requestAgentChatThreadOpen,
   sendToAgentChat,
@@ -46,7 +47,6 @@ import { ReportHeaderActions } from "./ReportHeaderActions";
 import { ReportHeaderTitle } from "./ReportHeaderTitle";
 import { ReportSkeleton } from "./ReportSkeleton";
 
-const STALL_MS = 20_000;
 const FRESH_MS = 5_000;
 
 function defaultSeekMs(report: Report): number {
@@ -104,7 +104,7 @@ export function ReportView({ id }: { id: string }) {
           message: t("report.agentKickoff"),
           context: JSON.stringify({ reportId: id }),
           submit: true,
-          openSidebar: true,
+          openSidebar: window.matchMedia("(min-width: 48rem)").matches,
           newTab: true,
           tabId: threadId,
         });
@@ -116,31 +116,30 @@ export function ReportView({ id }: { id: string }) {
 
   // --- agent state ---------------------------------------------------------
   const [generating] = useAgentChatGenerating({ tabId: report?.agentThreadId ?? null });
-  const [stalled, setStalled] = useState(false);
-  const createdAt = report ? new Date(report.createdAt).getTime() : 0;
   const clipRead = !!report?.clipReadAt;
+  const [engine, setEngine] = useState<"unknown" | "configured" | "missing" | "unavailable">("unknown");
   useEffect(() => {
-    if (!report || clipRead || generating) {
-      setStalled(false);
-      return;
-    }
-    const wait = Math.max(0, STALL_MS - (Date.now() - createdAt));
-    const timer = window.setTimeout(() => setStalled(true), wait);
-    return () => window.clearTimeout(timer);
-  }, [report, clipRead, generating, createdAt]);
+    let alive = true;
+    fetchAgentEngineConfiguredState(true)
+      .then((state) => alive && setEngine(state))
+      .catch(() => alive && setEngine("unknown"));
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const readClip = useActionMutation("read-clip");
   const [readError, setReadError] = useState<string | null>(null);
   function retryRead() {
     setReadError(null);
-    setStalled(false);
     readClip.mutate(
       { id },
-      { onError: (err: unknown) => setReadError(actionErrorMessage(err) ?? "") },
+      { onError: (err: unknown) => setReadError(actionErrorMessage(err) || t("report.readFailedBody")) },
     );
   }
-  const readFailed = !clipRead && (readError != null || stalled) && !readClip.isPending;
-  const reading = !clipRead && !readFailed;
+  const reading = !clipRead && (readClip.isPending || generating);
+  const readFailed = !clipRead && readError != null && !readClip.isPending;
+  const agentOffline = !clipRead && !reading && !readFailed && (engine === "missing" || engine === "unavailable");
   const readingEnded = !reading;
 
   // --- filing --------------------------------------------------------------
@@ -212,13 +211,6 @@ export function ReportView({ id }: { id: string }) {
   }
 
   function onPickMissing(field: RequirableField) {
-    if (field === "evidence") {
-      playerRef.current?.scrollIntoView({
-        block: "center",
-        behavior: prefersReducedMotion() ? "auto" : "smooth",
-      });
-      return;
-    }
     const el = document.getElementById(fieldDomId(field));
     if (!el) return;
     el.scrollIntoView({ block: "center", behavior: prefersReducedMotion() ? "auto" : "smooth" });
@@ -320,7 +312,27 @@ export function ReportView({ id }: { id: string }) {
           </>
         }
       >
-        {readError ?? t("report.readStalled")}
+        {readError}
+      </Notice>,
+    );
+  } else if (agentOffline) {
+    notices.push(
+      <Notice
+        key="offline"
+        tone="agent"
+        title={t("report.agentOffline")}
+        actions={
+          <>
+            <Button size="xs" onClick={retryRead}>
+              {t("report.readRecording")}
+            </Button>
+            <Button size="xs" variant="ghost" onClick={() => focusAgentChat()}>
+              {t("report.connectAi")}
+            </Button>
+          </>
+        }
+      >
+        {t("report.agentOfflineBody")}
       </Notice>,
     );
   }
@@ -440,7 +452,7 @@ export function ReportView({ id }: { id: string }) {
 
   return (
     <div className="@container min-h-full">
-      <div className="mx-auto grid w-full max-w-[76rem] grid-cols-1 gap-x-8 gap-y-10 px-4 pb-16 pt-6 @3xl:grid-cols-[minmax(0,1fr)_17.5rem] @3xl:px-8 @5xl:grid-cols-[minmax(0,1fr)_20rem] @5xl:gap-x-12 @6xl:grid-cols-[minmax(0,1fr)_24rem]">
+      <div className="grid w-full max-w-[76rem] grid-cols-1 gap-x-8 gap-y-10 px-4 pb-16 pt-6 @3xl:grid-cols-[minmax(0,1fr)_17.5rem] @5xl:grid-cols-[minmax(0,1fr)_20rem] @5xl:gap-x-12 @6xl:grid-cols-[minmax(0,1fr)_24rem]">
         <ReportForm
           report={report}
           requiredFields={requiredFields}
@@ -471,7 +483,7 @@ export function ReportView({ id }: { id: string }) {
           aria-label={t("report.evidence")}
           className="min-w-0 @3xl:sticky @3xl:top-6 @3xl:max-h-[calc(100dvh-6rem)] @3xl:self-start @3xl:overflow-y-auto"
         >
-          <EvidencePanel ref={playerRef} report={report} seek={seek} onSeek={onSeek} />
+          <EvidencePanel ref={playerRef} report={report} seek={seek} onSeek={onSeek} readFailed={readFailed} />
         </aside>
       </div>
       <div aria-live="polite" className="sr-only">

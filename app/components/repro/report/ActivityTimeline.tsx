@@ -104,9 +104,9 @@ export function ActivityTimeline({
   return (
     <div>
       <Button
-        variant="ghost"
+        variant="ghost-inset"
         size="sm"
-        className="-ms-2"
+        className="-ms-2 px-2"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >

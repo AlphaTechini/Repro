@@ -16,7 +16,7 @@ export function Header({ onOpenMobileSidebar }: HeaderProps) {
 
   return (
     <MobileAppBar
-      className="md:ps-4"
+      className="@container/header md:ps-4"
       onOpenNavigation={onOpenMobileSidebar}
       title={title}
       actions={
