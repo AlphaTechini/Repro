@@ -14,8 +14,10 @@ import { OrgSwitcher } from "@agent-native/toolkit/app/org";
 import { openCommandMenu } from "@agent-native/toolkit/app/shared";
 import { AgentNativeIcon } from "@agent-native/toolkit/app/shared/AgentNativeIcon";
 import {
+  IconChartBar,
   IconEdit,
   IconHome,
+  IconInbox,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
   IconLoader2,
@@ -151,6 +153,70 @@ function HomeNavLink({ collapsed }: { collapsed: boolean }) {
   }
 
   return <div className="px-2">{link}</div>;
+}
+
+function NavItem({
+  to,
+  label,
+  icon: Icon,
+  active,
+  collapsed,
+}: {
+  to: string;
+  label: string;
+  icon: typeof IconHome;
+  active: boolean;
+  collapsed: boolean;
+}) {
+  const link = (
+    <Link
+      to={to}
+      aria-current={active ? "page" : undefined}
+      aria-label={collapsed ? label : undefined}
+      className={cn(
+        "flex items-center text-sidebar-accent-foreground transition-colors hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
+        active && "bg-sidebar-accent",
+        collapsed
+          ? "size-8 justify-center rounded-md"
+          : "h-8 w-full gap-3 rounded-lg px-3 text-sm font-medium",
+      )}
+    >
+      <Icon className="size-4 shrink-0" strokeWidth={1.8} />
+      <span className={collapsed ? "sr-only" : "truncate"}>{label}</span>
+    </Link>
+  );
+  if (collapsed) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{link}</TooltipTrigger>
+        <TooltipContent side="right">{label}</TooltipContent>
+      </Tooltip>
+    );
+  }
+  return <div className="px-2">{link}</div>;
+}
+
+function ReproNavLinks({ collapsed }: { collapsed: boolean }) {
+  const t = useT();
+  const { pathname } = useLocation();
+  return (
+    <>
+      <NavItem
+        to="/reports"
+        label={t("navigation.reports")}
+        icon={IconInbox}
+        active={pathname === "/reports" || pathname.startsWith("/reports/")}
+        collapsed={collapsed}
+      />
+      <NavItem
+        to="/metrics"
+        label={t("navigation.metrics")}
+        icon={IconChartBar}
+        active={pathname === "/metrics"}
+        collapsed={collapsed}
+      />
+    </>
+  );
 }
 
 function ChatThreadsSection({ collapsed }: { collapsed: boolean }) {
@@ -407,7 +473,7 @@ export function Sidebar({
           collapsed ? "items-center gap-1 px-1 py-2" : "pt-1",
         )}
       >
-        <HomeNavLink collapsed={collapsed} />
+        <ReproNavLinks collapsed={collapsed} />
         <ChatThreadsSection collapsed={collapsed} />
       </nav>
 

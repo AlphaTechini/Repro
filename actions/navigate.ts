@@ -9,6 +9,10 @@ export default defineAction({
     view: z.string().optional().describe("View name to navigate to"),
     path: z.string().optional().describe("URL path to navigate to"),
     threadId: z.string().optional().describe("Chat thread ID to open"),
+    reportId: z
+      .string()
+      .optional()
+      .describe('Report id to open (with view "report")'),
   }),
   http: false,
   run: async (args) => {
@@ -19,6 +23,7 @@ export default defineAction({
     if (args.view) nav.view = args.view;
     if (args.path) nav.path = args.path;
     if (args.threadId) nav.threadId = args.threadId;
+    if (args.reportId) nav.reportId = args.reportId;
     nav._writeId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     await writeAppStateForCurrentTab("navigate", nav);
     return `Navigating to ${args.view || args.path}`;

@@ -1,5 +1,5 @@
-const rawAppName = "repro-test";
-const rawAppTitle = "Repro Test";
+const rawAppName = "repro";
+const rawAppTitle = "Repro";
 
 const APP_NAME_PLACEHOLDER = "{" + "{APP_NAME}}";
 const APP_TITLE_PLACEHOLDER = "{" + "{APP_TITLE}}";

@@ -18,6 +18,8 @@ export interface NavigationState {
   path?: string;
   publicPath?: string;
   threadId?: string;
+  reportId?: string;
+  status?: string;
 }
 
 export function useNavigationState() {
@@ -62,19 +64,37 @@ function matchesPathPrefix(pathname: string, prefix: string): boolean {
   return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
 
+const REPORT_PATH = /^\/reports\/([^/]+)$/;
+
+function reportIdFromPath(pathname: string): string | null {
+  const encoded = pathname.match(REPORT_PATH)?.[1];
+  if (!encoded) return null;
+  try {
+    return decodeURIComponent(encoded);
+    // coercion-ok: a malformed percent-encoding is not a report id.
+  } catch {
+    return null;
+  }
+}
+
 export function navigationStateForPath(pathname: string): NavigationState {
   const threadId = threadIdFromPath(pathname);
+  const reportId = reportIdFromPath(pathname);
   return {
     view: viewForPath(pathname),
     path: pathname,
     publicPath: appPathFromLocalRoute(pathname),
     ...(threadId ? { threadId } : {}),
+    ...(reportId ? { reportId } : {}),
   };
 }
 
 function viewForPath(pathname: string): string {
   if (isChatPathname(pathname)) return "chat";
   if (pathname === HOME_PATH) return "home";
+  if (REPORT_PATH.test(pathname)) return "report";
+  if (pathname === "/reports") return "reports";
+  if (pathname.startsWith("/metrics")) return "metrics";
   if (pathname.startsWith("/database")) return "database";
   if (pathname.startsWith("/extensions")) return "extensions";
   if (pathname.startsWith("/observability")) return "observability";
@@ -93,6 +113,10 @@ function pathForView(view?: string): string {
       return NEW_CHAT_PATH;
     case "home":
       return HOME_PATH;
+    case "reports":
+      return "/reports";
+    case "metrics":
+      return "/metrics";
     case "database":
       return "/database";
     case "extensions":
@@ -112,6 +136,11 @@ function pathForView(view?: string): string {
 
 export function pathForCommand(command: any): string {
   const path = pathForView(command?.view);
+  if (command?.view === "report" && typeof command?.reportId === "string") {
+    const reportId = command.reportId.trim();
+    if (reportId) return `/reports/${encodeURIComponent(reportId)}`;
+    return "/reports";
+  }
   if (command?.view !== "chat" && command?.view !== "ask") return path;
   const threadId =
     typeof command?.threadId === "string" ? command.threadId.trim() : "";

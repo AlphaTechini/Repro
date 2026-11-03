@@ -6,6 +6,12 @@ import {
   useAgentSettingsTabs,
 } from "@agent-native/toolkit/app/settings";
 
+import { IconBrandGithub } from "@tabler/icons-react";
+
+import {
+  GithubSettingsArea,
+  githubSearchEntries,
+} from "@/components/repro/settings/GithubSettingsArea";
 import { APP_TITLE } from "@/lib/app-config";
 
 import changelog from "../../CHANGELOG.md?raw";
@@ -24,6 +30,16 @@ export default function SettingsRoute() {
     <SettingsTabsPage
       account={<AccountSettingsCard />}
       extraTabs={agentSettingsTabs}
+      appAreas={[
+        {
+          id: "github",
+          label: "GitHub", // i18n-ignore brand name
+          icon: IconBrandGithub,
+          content: <GithubSettingsArea />,
+          keywords: "github repo repository issues auto-file required fields",
+          searchEntries: githubSearchEntries,
+        },
+      ]}
       whatsNewMarkdown={changelog}
     />
   );

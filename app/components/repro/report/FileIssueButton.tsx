@@ -1,0 +1,117 @@
+import { useT } from "@agent-native/core/client/i18n";
+import { buildSettingsRoute } from "@agent-native/core/client/navigation";
+import { IconArrowUpRight, IconBrandGithub } from "@tabler/icons-react";
+import { Link } from "react-router";
+
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import type { Report, RequirableField } from "@shared/repro/types";
+
+import { FIELD_LABEL } from "../lib/fields";
+
+export interface FileIssueButtonProps {
+  report: Report;
+  githubConnected: boolean | undefined;
+  repoChosen: boolean | undefined;
+  missing: RequirableField[];
+  percent: number;
+  filing: boolean;
+  /** Issue the UI just filed, before the report reloads. */
+  filedNow: { number: number; url: string } | null;
+  onFile: () => void;
+}
+
+export function FileIssueButton({
+  report,
+  githubConnected,
+  repoChosen,
+  missing,
+  percent,
+  filing,
+  filedNow,
+  onFile,
+}: FileIssueButtonProps) {
+  const t = useT();
+  const issueNumber = report.githubIssueNumber ?? filedNow?.number ?? null;
+  const issueUrl = report.githubIssueUrl ?? filedNow?.url ?? null;
+
+  if (report.status === "duplicate") {
+    return report.duplicateOfId ? (
+      <Button variant="outline" size="sm" asChild>
+        <Link to={`/reports/${encodeURIComponent(report.duplicateOfId)}`}>
+          {t("report.openOriginal")}
+        </Link>
+      </Button>
+    ) : null;
+  }
+
+  if (issueNumber != null && issueUrl) {
+    return (
+      <Button variant="outline" size="sm" asChild>
+        <a
+          href={issueUrl}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={t("report.openIssueN", { n: issueNumber })}
+        >
+          <IconBrandGithub aria-hidden="true" />
+          <span className="tabular-nums">#{issueNumber}</span>
+          <IconArrowUpRight aria-hidden="true" className="size-3 text-muted-foreground" />
+        </a>
+      </Button>
+    );
+  }
+
+  if (githubConnected === false || repoChosen === false) {
+    return (
+      <Button variant="outline" size="sm" asChild>
+        <Link to={buildSettingsRoute("app", "github")}>
+          <IconBrandGithub aria-hidden="true" />
+          {githubConnected === false ? (
+            <>
+              {t("report.connectShort")}
+              <span className="hidden xl:inline">{t("report.connectSuffix")}</span>
+            </>
+          ) : (
+            t("report.chooseRepoToFile")
+          )}
+        </Link>
+      </Button>
+    );
+  }
+
+  if (filing) {
+    return (
+      <Button size="sm" disabled>
+        <Spinner />
+        {t("report.filing")}
+      </Button>
+    );
+  }
+
+  if (percent < 100) {
+    const list = missing.map((f) => FIELD_LABEL[f]).join(", ");
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span tabIndex={0} className="rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <Button size="sm" disabled tabIndex={-1} className="pointer-events-none">
+              {t("report.fileIssue")}
+            </Button>
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>
+          {t("report.fillMore", { count: missing.length, list })}
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return (
+    <Button size="sm" onClick={onFile} disabled={githubConnected === undefined}>
+      <IconBrandGithub aria-hidden="true" />
+      {t("report.fileIssue")}
+    </Button>
+  );
+}

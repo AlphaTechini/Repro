@@ -1,7 +1,7 @@
 {
-  "name": "Repro Test",
-  "short_name": "Repro Test",
-  "description": "Workspace app for Repro Test.",
+  "name": "Repro",
+  "short_name": "Repro",
+  "description": "Turn a screen recording into a fix-ready GitHub issue.",
   "start_url": "./home",
   "background_color": "#111111",
   "theme_color": "#18181B",

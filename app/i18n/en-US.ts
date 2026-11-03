@@ -1,3 +1,5 @@
+import { reproMessages } from "./repro-messages";
+
 const messages = {
   composer: {
     removeAttachment: "Remove {{name}}",
@@ -87,4 +89,11 @@ const messages = {
   },
 };
 
-export default messages;
+const merged = {
+  ...messages,
+  ...reproMessages,
+  navigation: { ...messages.navigation, ...reproMessages.navigation },
+  settings: { ...messages.settings, ...reproMessages.settings },
+};
+
+export default merged;

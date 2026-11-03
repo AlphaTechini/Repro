@@ -41,7 +41,7 @@ import stylesheet from "./global.css?url";
 configureTracking({
   getDefaultProps: (_name, properties) => ({
     ...properties,
-    app: "repro-test",
+    app: "repro",
     template: "chat",
   }),
 });
