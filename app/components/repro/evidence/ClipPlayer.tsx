@@ -21,6 +21,8 @@ interface ClipPlayerProps {
   frames: FrameMarker[];
   /** The clip has been read, so the embed is known to be reachable. */
   clipRead: boolean;
+  /** A read is in flight or the agent is running: show the loading state. */
+  reading?: boolean;
   readFailed?: boolean;
   onSeek: (atMs: number) => void;
 }
@@ -33,7 +35,7 @@ const LOAD_TIMEOUT_MS = 6000;
  */
 export const ClipPlayer = forwardRef<HTMLDivElement, ClipPlayerProps>(
   function ClipPlayer(
-    { reportId, recordingId, origin, shareUrl, seek, durationMs, frames, clipRead, readFailed = false, onSeek },
+    { reportId, recordingId, origin, shareUrl, seek, durationMs, frames, clipRead, reading = false, readFailed = false, onSeek },
     ref,
   ) {
     const t = useT();
@@ -63,7 +65,10 @@ export const ClipPlayer = forwardRef<HTMLDivElement, ClipPlayerProps>(
     return (
       <div ref={ref} className="flex flex-col gap-2">
         {!clipRead ? (
-          <ClipPlaceholder state={readFailed ? "unavailable" : "pending"} shareUrl={shareUrl} />
+          <ClipPlaceholder
+            state={readFailed ? "unavailable" : reading ? "loading" : "idle"}
+            shareUrl={shareUrl}
+          />
         ) : framesMode && frames.length > 0 ? (
           <FrameGrid reportId={reportId} frames={frames} onSeek={onSeek} />
         ) : failed ? (

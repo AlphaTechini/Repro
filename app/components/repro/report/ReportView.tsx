@@ -483,7 +483,7 @@ export function ReportView({ id }: { id: string }) {
           aria-label={t("report.evidence")}
           className="min-w-0 @3xl:sticky @3xl:top-6 @3xl:max-h-[calc(100dvh-6rem)] @3xl:self-start @3xl:overflow-y-auto"
         >
-          <EvidencePanel ref={playerRef} report={report} seek={seek} onSeek={onSeek} readFailed={readFailed} />
+          <EvidencePanel ref={playerRef} report={report} seek={seek} onSeek={onSeek} reading={reading} readFailed={readFailed} />
         </aside>
       </div>
       <div aria-live="polite" className="sr-only">

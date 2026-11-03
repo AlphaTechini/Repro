@@ -28,8 +28,12 @@ interface Props {
   variant?: "title" | "body" | undefined;
 }
 
+// `field-sizing: content` hugs the text natively. The JS autosize is only a
+// fallback for engines without it.
+const NATIVE_FIELD_SIZING = typeof CSS !== "undefined" && CSS.supports("field-sizing", "content");
+
 function autosize(el: HTMLTextAreaElement | null) {
-  if (!el) return;
+  if (!el || NATIVE_FIELD_SIZING) return;
   el.style.height = "auto";
   el.style.height = `${el.scrollHeight}px`;
 }
@@ -109,7 +113,7 @@ export function ReportTextField({
     <Textarea
       {...common}
       ref={ref}
-      rows={variant === "title" ? 1 : 3}
+      rows={1}
       onKeyDown={(e) => {
         if (variant === "title" && e.key === "Enter") {
           e.preventDefault();
@@ -120,10 +124,10 @@ export function ReportTextField({
       }}
       className={cn(
         quietInput,
-        "resize-none overflow-hidden",
+        "field-sizing-content resize-none overflow-hidden",
         variant === "title"
           ? "min-h-0 py-1 text-xl font-semibold leading-7 tracking-tight"
-          : "min-h-9 py-1.5 text-sm leading-6 [field-sizing:content] focus:min-h-[4.5rem]",
+          : "min-h-9 py-1.5 text-sm leading-6 focus:min-h-[4.5rem]",
         missing && missingOutline,
         readOnly && "hover:border-transparent",
       )}

@@ -31,7 +31,8 @@ export function MissingFieldsPopover({
             <CompletenessMeter percent={percent} missingCount={missing.length} size="md" />
           </span>
           <span className="hidden @md/header:inline-flex @3xl/header:hidden">
-            <CompletenessMeter percent={percent} missingCount={missing.length} size="md" barOnly />
+            {/* Percent only: the "missing" count needs the wider header. */}
+            <CompletenessMeter percent={percent} size="md" />
           </span>
         </button>
       </PopoverTrigger>

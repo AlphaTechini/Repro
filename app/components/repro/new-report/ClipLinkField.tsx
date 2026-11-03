@@ -40,15 +40,16 @@ export function ClipLinkMessage({
   className?: string | undefined;
 }) {
   const { tone, text } = link.message;
-  if (hideIdle && "idle" in link.message) return <p className="min-h-4" />;
+  if (hideIdle && "idle" in link.message) return <p className={cn("min-h-4", className)} />;
   return (
     <p
       aria-live="polite"
       className={cn(
-        "min-h-4 min-w-0 truncate text-xs",
+        "min-h-4 min-w-0 break-words text-xs",
         tone === "error" && "text-error-ink",
         tone === "muted" && "text-muted-foreground",
         tone === "mono" && monoMeta,
+        className,
       )}
     >
       {text}
@@ -140,7 +141,8 @@ export function ClipLinkBar({ link, autoFocus }: FieldProps) {
         readOnly={link.submitting}
         className={cn(
           quietInput,
-          "mx-0 h-12 px-0 text-sm hover:border-transparent focus-visible:border-transparent",
+          // The row is the field: the input never draws its own border or ring.
+          "mx-0 h-12 border-0 px-0 text-sm shadow-none hover:border-0 focus-visible:border-0 focus-visible:bg-transparent focus-visible:ring-0 aria-invalid:border-0 aria-invalid:ring-0",
         )}
       />
     </div>

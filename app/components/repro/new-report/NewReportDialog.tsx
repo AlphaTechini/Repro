@@ -71,7 +71,7 @@ export function NewReportDialog({
           }}
         >
           <ClipLinkBar link={link} autoFocus />
-          <ClipLinkMessage link={link} className="min-h-9 px-4 pt-2.5" />
+          <ClipLinkMessage link={link} className="min-h-9 px-4 py-2 text-md" />
           <div className="flex items-center justify-end gap-3 px-4 pb-3 pt-1">
             <div className="flex shrink-0 items-center gap-2">
               <Kbd className="hidden @sm:inline-flex" aria-hidden="true">

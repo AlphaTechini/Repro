@@ -22,8 +22,9 @@ export const EvidencePanel = forwardRef<
     seek: SeekTarget;
     onSeek: (atMs: number) => void;
     readFailed?: boolean;
+    reading?: boolean;
   }
->(function EvidencePanel({ report, seek, onSeek, readFailed = false }, playerRef) {
+>(function EvidencePanel({ report, seek, onSeek, readFailed = false, reading = false }, playerRef) {
   const t = useT();
   const evidence = report.evidence;
 
@@ -97,6 +98,7 @@ export const EvidencePanel = forwardRef<
         durationMs={evidence?.durationMs}
         frames={evidence?.frames ?? []}
         clipRead={report.clipReadAt != null}
+        reading={reading}
         readFailed={readFailed}
         onSeek={onSeek}
       />

@@ -167,6 +167,7 @@ export const reproMessages = {
     noFrames: "No frames were captured for this recording.",
     notRead: "No evidence yet. Retry reading the recording above.",
     loadingRecording: "Loading recording…",
+    notReadYet: "Recording not read yet",
     cantPlay: "Can't play the recording here",
     console: "Console",
     network: "Network",
