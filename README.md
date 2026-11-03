@@ -1,33 +1,36 @@
-# Chat
+# Repro
 
-The minimal agent-native starter app — a clean, ChatGPT-style shell with chat at
-the center, durable threads, standard app navigation, auth, live sync, and
-actions. Start here when you want a real browser app to build on without
-committing to a domain template.
+**Turn "it's broken" into a fix-ready GitHub issue in one sitting.**
 
-**Live app: [chat.agent-native.com](https://chat.agent-native.com?utm_source=github&utm_medium=referral&utm_content=chat-readme)**
+Record a bug with [Clips](https://clips.agent-native.com). Repro's agent watches the recording, reads the console errors and failed requests it captured, fills in the bug report with evidence, asks you only what's missing (at most three questions), and files the GitHub issue.
 
-Chat is the basic agent-native app starting point. It gives you the app-agent
-loop wired end to end and one example action, so you can add your own UI, data,
-and actions on top.
+Built with [Agent-Native](https://agent-native.com) for the Builder.io Agent-Native Hackathon.
 
-## Features
+> Status: in development. This README is a placeholder; the full product README is written once the build is complete.
 
-- ChatGPT-style shell with a threads list and durable chat history.
-- Auth, live sync, and application state wired out of the box.
-- The action surface the agent and UI share, plus one example action to copy.
-- A minimal, brandable base for any domain app.
+- Product spec: [docs/PRD.md](docs/PRD.md)
+- Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- Build plan: [docs/BUILD-PLAN.md](docs/BUILD-PLAN.md)
+- Claims and proof: [docs/CLAIMS.md](docs/CLAIMS.md)
 
-## Develop locally
+## Capability checks
 
-Scaffold your own copy and run it:
+Before building, three small scripts confirm the services Repro depends on work as documented:
 
 ```bash
-npx --yes @agent-native/core@latest create my-app --standalone --template chat
-cd my-app
-corepack enable
+cp .env.example .env   # fill in the keys you need
+node --env-file=.env checks/01-llm-tool-call.mjs        # the model calls tools, and what it costs
+node --env-file=.env checks/02-clips-agent-context.mjs  # a Clip's transcript, frames and browser diagnostics are readable
+node --env-file=.env checks/03-github-issue.mjs         # the token can open and close an issue
+```
+
+Results go in [evidence/capability-checks.md](evidence/capability-checks.md).
+
+## Develop
+
+Requires Node 22.22+ and pnpm (`corepack enable`).
+
+```bash
 pnpm install
 pnpm dev
 ```
-
-Full docs: [agent-native.com/docs/template-chat](https://agent-native.com/docs/template-chat?utm_source=github&utm_medium=referral&utm_content=chat-readme).
