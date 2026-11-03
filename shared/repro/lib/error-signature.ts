@@ -5,13 +5,15 @@ const MAX_LEN = 120;
 export function normalizeMessage(message: string): string {
   return message
     .replace(/https?:\/\/\S+/gi, "")
-    .replace(/"[^"]*"|'[^']*'|`[^`]*`/g, "")
+    .replace(/"[^"]*"|'[^']*'|`[^`]*`/g, "'…'")
     .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, "")
     .replace(/\b0x[0-9a-f]+\b/gi, "")
     .replace(/\b(?=[0-9a-f]*\d)(?=[0-9a-f]*[a-f])[0-9a-f]{6,}\b/gi, "")
     .replace(/\d+/g, "")
     .replace(/\s+/g, " ")
     .trim()
+    // Drop a dangling stack fragment left after stripping addresses/urls.
+    .replace(/\s+at$/i, "")
     .slice(0, MAX_LEN)
     .trim();
 }

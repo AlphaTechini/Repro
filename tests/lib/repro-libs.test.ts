@@ -63,7 +63,7 @@ describe("error-signature", () => {
         { id: "2", level: "error", message: "TypeError: Cannot read 'id' of 0x1a2b3c at https://a.b/c.js:12:3  item 4821", atMs: 1 },
       ],
     });
-    expect(sig).toBe("TypeError: Cannot read of at item");
+    expect(sig).toBe("TypeError: Cannot read '…' of at item");
   });
   it("falls back to warn, then failed request", () => {
     expect(computeErrorSignature({ failedRequests: [], consoleIssues: [{ id: "1", level: "warn", message: "careful 5", atMs: 0 }] })).toBe("careful");
