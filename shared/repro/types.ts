@@ -203,6 +203,9 @@ export interface Report {
 export interface ReportListItem {
   id: string;
   status: ReportStatus;
+  recordingId: string;
+  clipOrigin: string;
+  clipReadAt: string | null;
   title: string | null;
   errorSignature: string | null;
   severity: Severity | null;

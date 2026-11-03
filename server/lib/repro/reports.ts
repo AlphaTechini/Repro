@@ -240,6 +240,9 @@ export function toListItem(r: Report): ReportListItem {
   return {
     id: r.id,
     status: r.status,
+    recordingId: r.recordingId,
+    clipOrigin: r.clipOrigin,
+    clipReadAt: r.clipReadAt,
     title: r.title,
     errorSignature: r.errorSignature,
     severity: r.severity,
